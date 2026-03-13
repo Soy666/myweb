@@ -46,6 +46,25 @@
             margin: 0 4px;
         }
 
+        /* 专门用于缩小50%的图片样式 - 详细写法 */
+        .content img {
+            /* 设置宽度为原始尺寸的50% */
+            width: 50% !important;
+            /* 高度自动适配，保持图片比例不变 */
+            height: auto !important;
+            /* 防止图片被其他样式覆盖 */
+            max-width: 50% !important;
+            min-width: unset !important;
+            /* 可选：让图片居中显示，提升美观度 */
+            display: block !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+            /* 可选：添加轻微圆角，避免图片边角生硬 */
+            border-radius: 4px !important;
+            /* 可选：添加边框，与页面风格统一 */
+            border: 1px solid #333 !important;
+        }
+
         /* 返回按钮 */
         .back-btn {
             margin-top: 40px;
@@ -75,6 +94,11 @@
                 padding: 20px;
                 width: 100%;
             }
+            /* 移动端图片适当调整，避免太小 */
+            .content img {
+                width: 80% !important;
+                max-width: 80% !important;
+            }
             .back-btn {
                 padding: 10px 25px;
                 font-size: 16px;
@@ -87,6 +111,19 @@
         <p>感谢你来到我们嘲哳项目组的网页<span class="heart">❤️</span>，我们是一支自发/为爱发电性质的团队，团队成员也都是喜欢失落媒体/都市传说/怪谈故事的小伙伴们，大家使出来浑身解数，渴望创造出真正的嘲哳。</p>
         <br>
         <p>承蒙大家的厚爱！失落媒体·嘲哳已经在各大媒体有一些反响了……</p>
+        <br>
+        <p>我们的项目起始为一名代号为岑澜的人，但她显然不是游戏的作者，而是嘲哳这个失落媒体的追寻者。继GFAP，鬼脸谱等小有名气的失落媒体起起伏伏，追寻者们只能漫无目的的寻找，甚至说是质疑到底有没有这玩意，是不是谣言？
+            <br>在此背景下，我们逐渐有了不一样的态度，与其说坐以待毙，不如主动出击，由我们自己来创造一个真正的失落媒体！
+            <br>
+            <img src="巨魔图.png" alt="巨魔图1">
+            <p><center>一开始爆出来的巨魔图</center>
+            <br>
+            <br>
+            <br>
+            
+            <img src="封面图.jpg" alt="">
+            <p><center>由美工 “万俟循”老师绘制的版本</center></p>
+            后面我还在写····
     </div>
 
     <button class="back-btn" onclick="window.location.href='index.html'">返回主页</button>
