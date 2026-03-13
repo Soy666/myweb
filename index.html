@@ -41,15 +41,11 @@
             transition: background-image 0.3s ease-out;
         }
 
-        /* 标题容器 */
+        /* 标题容器（去掉箭头后简化） */
         .title-container {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 30px;
-            /* 文字先显示，不等待图片 */
-            position: relative;
-            z-index: 1;
         }
 
         /* 标题样式 */
@@ -59,14 +55,6 @@
             color: white;
             text-shadow: 2px 2px 8px #000;
             animation: float 4s ease-in-out infinite;
-        }
-
-        /* 下方小箭头 */
-        .down-arrow {
-            color: white;
-            font-size: 30px;
-            text-shadow: 2px 2px 8px #000;
-            animation: arrowFloat 3s ease-in-out infinite;
         }
 
         /* 右侧切换按钮（优化点击响应） */
@@ -104,11 +92,6 @@
             50% { transform: translateY(-6px); }
             100% { transform: translateY(0px); }
         }
-        @keyframes arrowFloat {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(8px); }
-            100% { transform: translateY(0px); }
-        }
 
         /* 移动端适配（无卡顿版） */
         @media (max-width: 768px) {
@@ -117,7 +100,6 @@
                 background-attachment: scroll; /* 取消固定，避免手机卡顿 */
             }
             #zhaozha-title { font-size: 36px; }
-            .down-arrow { font-size: 20px; }
             .next-btn {
                 width: 40px;
                 height: 40px;
@@ -131,9 +113,9 @@
     </style>
 </head>
 <body>
+    <!-- 标题容器：只保留文字，移除下方箭头 -->
     <div class="title-container">
         <p id="zhaozha-title">“欢迎来到嘲哳 Project”</p>
-        <div class="down-arrow">▼</div>
     </div>
 
     <img src="fengmiantu.png" alt="嘲哳项目封面图" class="Project-img">
