@@ -45,24 +45,6 @@
             transform: translateZ(0);
         }
 
-        /* 图片层 - 懒加载占位 */
-        .image-layer {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: #000;
-            background-size: cover;
-            background-position: center;
-            z-index: 2;
-            display: none;
-        }
-
-        .image-layer.active {
-            display: block;
-        }
-
         /* 标题容器 - 秒显，无依赖 */
         .title-container {
             position: fixed;
@@ -85,8 +67,8 @@
             transform: translateZ(0);
         }
 
-        /* 按钮样式 */
-        .prev-btn, .next-btn, .home-btn, .start-btn, .music-btn {
+        /* 按钮样式 - 仅保留核心按钮，删除左右箭头样式 */
+        .home-btn, .start-btn, .music-btn {
             position: fixed;
             border: none;
             color: white;
@@ -96,32 +78,6 @@
             -webkit-tap-highlight-color: transparent;
             background: rgba(0, 0, 0, 0.7);
             transition: background 0.1s ease;
-        }
-
-        .prev-btn {
-            left: 30px;
-            bottom: 50%;
-            transform: translateY(50%);
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            font-size: 30px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .next-btn {
-            right: 30px;
-            bottom: 50%;
-            transform: translateY(50%);
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            font-size: 30px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
         }
 
         .start-btn {
@@ -150,7 +106,7 @@
             font-size: 16px;
         }
 
-        .prev-btn:hover, .next-btn:hover, .home-btn:hover, .start-btn:hover, .music-btn:hover {
+        .home-btn:hover, .start-btn:hover, .music-btn:hover {
             background: rgba(0, 0, 0, 0.9);
         }
 
@@ -164,19 +120,12 @@
             display: none;
         }
 
-        /* 移动端适配 */
+        /* 移动端适配 - 删除左右箭头相关适配 */
         @media (max-width: 768px) {
             #zhaozha-title {
                 font-size: 40px;
                 padding: 15px 25px;
             }
-            .prev-btn, .next-btn {
-                width: 40px;
-                height: 40px;
-                font-size: 20px;
-            }
-            .prev-btn { left: 15px; }
-            .next-btn { right: 15px; }
             .start-btn {
                 padding: 10px 25px;
                 font-size: 16px;
@@ -203,91 +152,41 @@
         <source src="1.mp3" type="audio/mpeg">
     </audio>
 
-    <!-- 视频 - 强制立即加载+自动播放 -->
+    <!-- 视频 - 保留视频背景 -->
     <div class="video-container">
         <video class="video-bg" loop muted playsinline autoplay preload="auto" src="bt.mp4"></video>
     </div>
-
-    <!-- 图片层 -->
-    <div class="image-layer" id="imageLayer"></div>
 
     <!-- 标题 - 秒显 -->
     <div class="title-container" id="titleContainer">
         <p id="zhaozha-title">“欢迎来到嘲哳 Project”</p>
     </div>
 
-    <!-- 按钮组 -->
-    <button class="prev-btn">◀</button>
-    <button class="next-btn">▶</button>
+    <!-- 按钮组 - 删除左右箭头按钮 -->
     <button class="start-btn">开始找寻</button>
     <button class="home-btn">回到首页</button>
     <button class="music-btn">播放音乐</button>
 
     <script>
-        // DOM缓存
+        // DOM缓存 - 删除图片和左右箭头相关DOM引用
         const bgMusic = document.getElementById('bg-music');
         const musicBtn = document.querySelector('.music-btn');
-        const imageLayer = document.getElementById('imageLayer');
         const titleContainer = document.getElementById('titleContainer');
         const videoBg = document.querySelector('.video-bg');
-        const prevBtn = document.querySelector('.prev-btn');
-        const nextBtn = document.querySelector('.next-btn');
         const homeBtn = document.querySelector('.home-btn');
         const startBtn = document.querySelector('.start-btn');
 
-        // 状态管理
+        // 状态管理 - 删除图片相关状态
         let isMusicPlaying = false;
         let isAudioLoaded = false; // 标记音频是否已加载
-        const images = [
-            "fengmiantu.png",
-            "fengmiantu2.png"
-        ];
-        let currentImageIndex = -1;
-        const imageCache = new Map(); // 图片缓存，避免重复加载
 
         // 确保视频持续播放的核心函数
         function ensureVideoPlaying() {
-            // 如果视频暂停且不是因为图片层显示导致的，恢复播放
-            if (videoBg.paused && currentImageIndex === -1) {
+            // 直接恢复视频播放（无图片层干扰）
+            if (videoBg.paused) {
                 videoBg.play().catch(err => {
                     console.log('恢复视频播放:', err);
                 });
-            }
-        }
-
-        // 图片懒加载（点击才加载）
-        function lazyLoadImage(src) {
-            if (imageCache.has(src)) return Promise.resolve(imageCache.get(src));
-            
-            return new Promise((resolve) => {
-                const img = new Image();
-                img.crossOrigin = 'anonymous';
-                img.src = src;
-                
-                img.onload = () => {
-                    imageCache.set(src, img);
-                    resolve(img);
-                };
-                img.onerror = () => resolve(null);
-            });
-        }
-
-        // 更新显示逻辑
-        async function updateDisplay() {
-            if (currentImageIndex === -1) {
-                imageLayer.classList.remove('active');
-                titleContainer.style.display = 'block'; // 强制显示标题
-                // 显示标题时恢复视频播放
-                ensureVideoPlaying();
-            } else {
-                imageLayer.classList.add('active');
-                titleContainer.style.display = 'none';
-                // 显示图片时暂停视频（可选，减少资源占用）
-                // videoBg.pause();
-                
-                const idx = Math.abs(currentImageIndex) % images.length;
-                const img = await lazyLoadImage(images[idx]);
-                if (img) imageLayer.style.backgroundImage = `url("${images[idx]}")`;
             }
         }
 
@@ -329,31 +228,20 @@
             ensureVideoPlaying();
         });
 
-        // 按钮事件
-        prevBtn.addEventListener('click', () => {
-            currentImageIndex++;
-            updateDisplay();
-        });
-
-        nextBtn.addEventListener('click', () => {
-            currentImageIndex--;
-            updateDisplay();
-        });
-
+        // 按钮事件 - 仅保留核心按钮逻辑
         homeBtn.addEventListener('click', () => {
-            currentImageIndex = -1;
-            updateDisplay();
+            // 回到首页仅确保视频播放
+            ensureVideoPlaying();
+            titleContainer.style.display = 'block';
         });
 
         startBtn.addEventListener('click', () => {
             window.location.href = 'index2.html';
         });
 
-        // 监听视频暂停事件，自动恢复（仅在显示标题时）
+        // 监听视频暂停事件，自动恢复
         videoBg.addEventListener('pause', () => {
-            if (currentImageIndex === -1) {
-                setTimeout(ensureVideoPlaying, 100); // 延迟恢复，避免频繁触发
-            }
+            setTimeout(ensureVideoPlaying, 100); // 延迟恢复，避免频繁触发
         });
 
         // 定时检查视频状态，确保不会停止播放
@@ -361,7 +249,7 @@
 
         // 初始化：页面加载完成就显示标题，视频已自动播放
         window.addEventListener('load', () => {
-            updateDisplay();
+            titleContainer.style.display = 'block';
             videoBg.playbackRate = 0.75; // 确保播放速度生效
             // 预加载音频但不播放
             initAudio();
