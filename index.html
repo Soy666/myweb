@@ -3,63 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>测试页面</title>
+    <title>嘲哳 Project</title>
     <link rel="stylesheet" href="style.css">
 
     <style>
+        /* 全局重置 */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        /* 预加载背景图 */
+        body::before {
+            content: "";
+            position: absolute;
+            width: 0;
+            height: 0;
+            overflow: hidden;
+            background: url("fengmiantu.png") no-repeat, url("fengmiantu2.png") no-repeat;
+        }
+
+        /* 主体样式（PC端） */
         body {
-            background-image: url("fengmiantu.png");
-            background-size: cover;
-            background-position: center;
+            background-image: url("fengmiantu.png"); /* 默认显示第一张图 */
+            background-size: cover;      /* PC端全屏覆盖 */
+            background-position: center; /* 始终居中 */
             background-repeat: no-repeat;
             background-attachment: fixed;
             min-height: 100vh;
-            
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-
-            /* 提速关键 */
             will-change: background;
             backface-visibility: hidden;
+            transition: background 0.5s ease;
         }
 
+        /* 标题容器 */
+        .title-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+
+        /* 标题样式 */
         #zhaozha-title {
             text-align: center;
             font-size: 55px;
             color: white;
             text-shadow: 2px 2px 8px #000;
             z-index: 1;
-
-            animation: float 3s ease-in-out infinite;
+            animation: float 4s ease-in-out infinite;
+            -webkit-font-smoothing: antialiased;
+            font-smoothing: antialiased;
         }
 
+        /* 下方小箭头 */
+        .down-arrow {
+            color: white;
+            font-size: 30px;
+            text-shadow: 2px 2px 8px #000;
+            z-index: 1;
+            animation: arrowFloat 3s ease-in-out infinite;
+        }
+
+        /* 标题浮动动画 */
         @keyframes float {
-            0% {
-                transform: translateY(0px);
-            }
-            50% {
-                transform: translateY(-8px);
-            }
-            100% {
-                transform: translateY(0px);
-            }
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+            100% { transform: translateY(0px); }
+        }
+
+        /* 箭头浮动动画 */
+        @keyframes arrowFloat {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(8px); }
+            100% { transform: translateY(0px); }
+        }
+
+        /* 右侧切换按钮 */
+        .next-btn {
+            position: fixed;
+            right: 30px;
+            bottom: 50%;
+            transform: translateY(50%);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            font-size: 30px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2;
+            transition: all 0.3s ease;
+        }
+
+        .next-btn:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+            transform: translateY(50%) scale(1.1);
         }
 
         .Project-img {
             display: none;
         }
+
+        /* 👇 移动端适配（核心修改） */
+        @media (max-width: 768px) {
+            /* 移动端背景图调整：避免拉伸，优先显示核心内容 */
+            body {
+                background-size: contain; /* 改为“包含”，图片完整显示不拉伸 */
+                background-attachment: scroll; /* 取消固定，提升性能 */
+                background-color: #000; /* 图片外的区域填黑色，更协调 */
+            }
+
+            /* 文字和箭头适配 */
+            #zhaozha-title {
+                font-size: 36px; /* 字号缩小 */
+                margin-top: -100px; /* 微调位置，避免被图片遮挡 */
+            }
+            .down-arrow {
+                font-size: 20px; /* 箭头缩小 */
+            }
+
+            /* 切换按钮适配 */
+            .next-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+                right: 15px;
+            }
+        }
     </style>
 </head>
 <body>
-    <p id="zhaozha-title">“欢迎来到嘲哳 Project”</p>
+    <div class="title-container">
+        <p id="zhaozha-title">“欢迎来到嘲哳 Project”</p>
+        <div class="down-arrow">▼</div>
+    </div>
+
     <img src="fengmiantu.png" alt="嘲哳项目封面图" class="Project-img">
+    <button class="next-btn">▶</button>
+
+    <script>
+        const bgImages = [
+            "fengmiantu.png",
+            "fengmiantu2.png",
+        ];
+        let currentIndex = 0;
+
+        const nextBtn = document.querySelector('.next-btn');
+        const body = document.body;
+
+        nextBtn.addEventListener('click', () => {
+            currentIndex = (currentIndex + 1) % bgImages.length;
+            body.style.backgroundImage = `url("${bgImages[currentIndex]}")`;
+        });
+    </script>
 </body>
 </html>
