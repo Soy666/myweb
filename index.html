@@ -25,6 +25,10 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
+
+            /* 提速关键 */
+            will-change: background;
+            backface-visibility: hidden;
         }
 
         #zhaozha-title {
@@ -34,17 +38,15 @@
             text-shadow: 2px 2px 8px #000;
             z-index: 1;
 
-            /* 👇 这里加微微浮动动画 */
             animation: float 3s ease-in-out infinite;
         }
 
-        /* 👇 动画定义：轻轻上下飘 */
         @keyframes float {
             0% {
                 transform: translateY(0px);
             }
             50% {
-                transform: translateY(-8px); /* 浮动高度，很小很柔和 */
+                transform: translateY(-8px);
             }
             100% {
                 transform: translateY(0px);
