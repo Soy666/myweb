@@ -6,11 +6,10 @@
     <title>嘲哳 Project</title>
     <link rel="stylesheet" href="style.css">
 
-    <!-- 提前预加载核心图片 -->
-    <link rel="preload" href="fengmiantu.png" as="image">
-    <link rel="preload" href="fengmiantu2.png" as="image">
-    <!-- 预加载音频文件，加快播放速度 -->
+    <!-- 预加载音频和图片 -->
     <link rel="preload" href="1.ogg" as="audio" type="audio/ogg">
+    <link rel="preload" href="fengmiantu.png" as="image" fetchpriority="high">
+    <link rel="preload" href="fengmiantu2.png" as="image" fetchpriority="high">
 
     <style>
         /* 全局重置 */
@@ -24,20 +23,45 @@
         body {
             background: #000;
             min-height: 100vh;
-            /* 垂直+水平居中 */
             display: flex;
             justify-content: center;
             align-items: center;
-            /* 背景图配置 */
-            background-image: url("fengmiantu.png");
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* 视频背景（固定，不切换） */
+        .video-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            object-position: center;
+            z-index: 1; /* 最底层 */
+        }
+
+        /* 图片层（叠加在视频上，可切换） */
+        .image-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            background-attachment: fixed;
-            /* 优化过渡：只针对背景图 */
-            transition: background-image 0.3s ease-out;
-            will-change: background-image;
-            transform: translateZ(0);
+            z-index: 2; /* 视频之上，按钮之下 */
+            /* 图片切换过渡 */
+            transition: background-image 0.1s ease-out;
+            /* 初始隐藏图片层（首页仅显示视频） */
+            display: none;
+        }
+
+        /* 图片层激活显示 */
+        .image-layer.active {
+            display: block;
         }
 
         /* 标题容器 - 固定层级+可隐藏 */
@@ -45,14 +69,11 @@
             position: fixed;
             z-index: 999;
             pointer-events: none;
-            /* 默认显示，切换非首页图时隐藏 */
             opacity: 1;
             visibility: visible;
-            /* 隐藏/显示过渡更丝滑 */
-            transition: opacity 0.3s ease, visibility 0.3s ease;
+            transition: opacity 0.1s ease, visibility 0.1s ease;
         }
 
-        /* 标题隐藏样式 */
         .title-container.hidden {
             opacity: 0;
             visibility: hidden;
@@ -70,7 +91,7 @@
             animation: float 4s ease-in-out infinite;
         }
 
-        /* 左侧切换按钮 */
+        /* 左侧切换按钮（切下一张图） */
         .prev-btn {
             position: fixed;
             left: 30px;
@@ -98,7 +119,7 @@
             transform: translateY(50%) scale(1.1);
         }
 
-        /* 右侧切换按钮 */
+        /* 右侧切换按钮（切上一张图） */
         .next-btn {
             position: fixed;
             right: 30px;
@@ -187,26 +208,17 @@
 
         /* 移动端适配 */
         @media (max-width: 768px) {
-            body {
-                background-size: cover;
-                background-attachment: scroll;
-            }
             #zhaozha-title {
                 font-size: 40px;
                 padding: 15px 25px;
             }
-            .prev-btn {
+            .prev-btn, .next-btn {
                 width: 40px;
                 height: 40px;
                 font-size: 20px;
-                left: 15px;
             }
-            .next-btn {
-                width: 40px;
-                height: 40px;
-                font-size: 20px;
-                right: 15px;
-            }
+            .prev-btn { left: 15px; }
+            .next-btn { right: 15px; }
             .home-btn {
                 padding: 10px 25px;
                 font-size: 16px;
@@ -219,58 +231,82 @@
                 font-size: 14px;
             }
         }
-
-        .Project-img { display: none; }
     </style>
 </head>
 <body>
-    <!-- 背景音乐：1.ogg -->
+    <!-- 背景音乐 -->
     <audio id="bg-music" loop>
         <source src="1.ogg" type="audio/ogg">
-        <!-- 兼容备用 -->
-        <!-- <source src="1.mp3" type="audio/mpeg"> -->
+        <source src="1.mp3" type="audio/mpeg"> <!-- 兼容备用 -->
     </audio>
 
-    <!-- 标题容器 -->
-    <div class="title-container">
+    <!-- 固定视频背景（0.75倍速，不切换） -->
+    <video class="video-bg" loop muted autoplay playsinline>
+        <source src="bt.mp4" type="video/mp4">
+        <!-- <source src="bt.webm" type="video/webm"> -->
+    </video>
+
+    <!-- 可切换的图片层（叠加在视频上） -->
+    <div class="image-layer" id="imageLayer"></div>
+
+    <!-- 标题容器（仅首页视频显示） -->
+    <div class="title-container" id="titleContainer">
         <p id="zhaozha-title">“欢迎来到嘲哳 Project”</p>
     </div>
 
-    <img src="fengmiantu.png" alt="嘲哳项目封面图" class="Project-img">
-    <!-- 左侧切换按钮 -->
-    <button class="prev-btn">◀</button>
-    <!-- 右侧切换按钮 -->
-    <button class="next-btn">▶</button>
-    <!-- 回到首页按钮 -->
+    <!-- 按钮组 -->
+    <button class="prev-btn">◀</button> <!-- 左按钮：切下一张图 -->
+    <button class="next-btn">▶</button> <!-- 右按钮：切上一张图 -->
     <button class="home-btn">回到首页</button>
-    <!-- 音乐开关按钮 -->
     <button class="music-btn">暂停音乐</button>
 
     <script>
-        // 背景音乐初始化
+        // ========== 基础元素初始化 ==========
+        // 音乐相关
         const bgMusic = document.getElementById('bg-music');
         const musicBtn = document.querySelector('.music-btn');
         let isMusicPlaying = false;
 
-        // 标题容器（核心：控制显示/隐藏）
-        const titleContainer = document.querySelector('.title-container');
+        // 图片相关
+        const imageLayer = document.getElementById('imageLayer');
+        const titleContainer = document.getElementById('titleContainer');
+        // 图片列表（可新增）
+        const images = [
+            "fengmiantu.png",   // 索引0：非首页图片1
+            "fengmiantu2.png"   // 索引1：非首页图片2
+        ];
+        let currentImageIndex = -1; // -1=首页（无图片），0+=非首页图片
 
-        // 解决浏览器自动播放限制
-        function playMusicInit() {
+        // 视频相关（固定背景，0.75倍速）
+        const videoBg = document.querySelector('.video-bg');
+        videoBg.playbackRate = 0.75; // 设置视频0.75倍速
+
+        // ========== 解决浏览器自动播放限制 ==========
+        function initMedia() {
+            // 播放音乐
             bgMusic.play().then(() => {
                 isMusicPlaying = true;
                 musicBtn.textContent = "暂停音乐";
             }).catch(err => {
-                console.log("音频播放需要用户交互：", err);
+                console.log("音频需要用户交互：", err);
                 musicBtn.textContent = "播放音乐";
             });
-            document.removeEventListener('click', playMusicInit);
-            document.removeEventListener('touchstart', playMusicInit);
-        }
-        document.addEventListener('click', playMusicInit);
-        document.addEventListener('touchstart', playMusicInit);
 
-        // 音乐开关逻辑
+            // 播放视频（确保倍速生效）
+            videoBg.play().then(() => {
+                videoBg.playbackRate = 0.75; // 再次确认倍速
+            }).catch(err => {
+                console.log("视频需要用户交互：", err);
+            });
+
+            // 只执行一次
+            document.removeEventListener('click', initMedia);
+            document.removeEventListener('touchstart', initMedia);
+        }
+        document.addEventListener('click', initMedia);
+        document.addEventListener('touchstart', initMedia);
+
+        // ========== 音乐开关逻辑 ==========
         musicBtn.addEventListener('click', () => {
             if (isMusicPlaying) {
                 bgMusic.pause();
@@ -278,66 +314,57 @@
                 musicBtn.textContent = "播放音乐";
             } else {
                 bgMusic.play().catch(() => {
-                    alert("请先点击页面空白处解锁音频播放权限");
+                    alert("请先点击页面空白处解锁音频权限");
                 });
                 isMusicPlaying = true;
                 musicBtn.textContent = "暂停音乐";
             }
         });
 
-        // 背景图切换逻辑
-        const bgImages = [
-            "fengmiantu.png",   // 索引0：首页（显示标题）
-            "fengmiantu2.png"   // 索引1：非首页（隐藏标题）
-        ];
-        let currentIndex = 0;
-        const body = document.body;
-        const prevBtn = document.querySelector('.prev-btn');
-        const nextBtn = document.querySelector('.next-btn');
-        const homeBtn = document.querySelector('.home-btn');
-
-        // 图片缓存
-        const imageCache = [];
-        bgImages.forEach(src => {
-            const img = new Image();
-            img.src = src;
-            imageCache.push(img);
-        });
-
-        // 核心函数：更新标题显示状态
-        function updateTitleDisplay() {
-            if (currentIndex === 0) {
-                // 首页（索引0）：显示标题
+        // ========== 核心切换逻辑 ==========
+        // 更新图片和标题显示
+        function updateDisplay() {
+            if (currentImageIndex === -1) {
+                // 首页：隐藏图片层，显示标题
+                imageLayer.classList.remove('active');
                 titleContainer.classList.remove('hidden');
             } else {
-                // 非首页：隐藏标题
+                // 非首页：显示图片层，隐藏标题
+                imageLayer.style.backgroundImage = `url("${images[currentImageIndex % images.length]}")`;
+                imageLayer.classList.add('active');
                 titleContainer.classList.add('hidden');
             }
         }
 
-        // 左侧按钮 - 切上一张
-        prevBtn.addEventListener('click', () => {
-            currentIndex = (currentIndex - 1 + bgImages.length) % bgImages.length;
-            body.style.backgroundImage = `url("${bgImages[currentIndex]}")`;
-            updateTitleDisplay(); // 切换后更新标题状态
+        // 左按钮：切下一张图（首页→图片0→图片1→...）
+        document.querySelector('.prev-btn').addEventListener('click', () => {
+            currentImageIndex = (currentImageIndex + 1) % images.length;
+            updateDisplay();
         });
 
-        // 右侧按钮 - 切下一张
-        nextBtn.addEventListener('click', () => {
-            currentIndex = (currentIndex + 1) % bgImages.length;
-            body.style.backgroundImage = `url("${bgImages[currentIndex]}")`;
-            updateTitleDisplay(); // 切换后更新标题状态
+        // 右按钮：切上一张图（图片1→图片0→首页）
+        document.querySelector('.next-btn').addEventListener('click', () => {
+            currentImageIndex--;
+            if (currentImageIndex < -1) {
+                currentImageIndex = images.length - 1;
+            }
+            updateDisplay();
         });
 
-        // 回到首页按钮
-        homeBtn.addEventListener('click', () => {
-            currentIndex = 0; // 强制切回首页
-            body.style.backgroundImage = `url("${bgImages[currentIndex]}")`;
-            updateTitleDisplay(); // 显示标题
+        // 回到首页：隐藏图片，显示视频+标题
+        document.querySelector('.home-btn').addEventListener('click', () => {
+            currentImageIndex = -1;
+            updateDisplay();
         });
 
-        // 初始化标题状态（默认显示）
-        updateTitleDisplay();
+        // ========== 初始化 ==========
+        // 预加载所有图片
+        images.forEach(src => {
+            const img = new Image();
+            img.src = src;
+        });
+        // 初始显示首页（视频+标题）
+        updateDisplay();
     </script>
 </body>
 </html>
