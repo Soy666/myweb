@@ -6,39 +6,39 @@
     <title>嘲哳 Project</title>
     <link rel="stylesheet" href="style.css">
 
+    <!-- 提前预加载核心图片（优先级最高） -->
+    <link rel="preload" href="fengmiantu.png" as="image">
+    <link rel="preload" href="fengmiantu2.png" as="image">
+
     <style>
-        /* 全局重置 */
+        /* 全局重置 + 禁止页面闪烁 */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* 预加载背景图 */
-        body::before {
-            content: "";
-            position: absolute;
-            width: 0;
-            height: 0;
-            overflow: hidden;
-            background: url("fengmiantu.png") no-repeat, url("fengmiantu2.png") no-repeat;
-        }
-
-        /* 主体样式（PC端） */
+        /* 先加载纯色背景，避免白屏，图片加载后无缝替换 */
         body {
-            background-image: url("fengmiantu.png"); /* 默认显示第一张图 */
-            background-size: cover;      /* PC端全屏覆盖 */
-            background-position: center; /* 始终居中 */
-            background-repeat: no-repeat;
-            background-attachment: fixed;
+            background: #000; /* 兜底背景色，和图片风格匹配 */
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            will-change: background;
+            /* 渲染优化：告诉浏览器优先处理背景 */
+            will-change: background-image;
             backface-visibility: hidden;
-            transition: background 0.5s ease;
+            transform: translateZ(0); /* 开启硬件加速 */
+            /* 背景图核心配置（兼顾速度和显示） */
+            background-image: url("fengmiantu.png");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            /* 图片切换无卡顿 */
+            transition: background-image 0.3s ease-out;
         }
 
         /* 标题容器 */
@@ -47,6 +47,9 @@
             flex-direction: column;
             align-items: center;
             gap: 30px;
+            /* 文字先显示，不等待图片 */
+            position: relative;
+            z-index: 1;
         }
 
         /* 标题样式 */
@@ -55,10 +58,7 @@
             font-size: 55px;
             color: white;
             text-shadow: 2px 2px 8px #000;
-            z-index: 1;
             animation: float 4s ease-in-out infinite;
-            -webkit-font-smoothing: antialiased;
-            font-smoothing: antialiased;
         }
 
         /* 下方小箭头 */
@@ -66,25 +66,10 @@
             color: white;
             font-size: 30px;
             text-shadow: 2px 2px 8px #000;
-            z-index: 1;
             animation: arrowFloat 3s ease-in-out infinite;
         }
 
-        /* 标题浮动动画 */
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-6px); }
-            100% { transform: translateY(0px); }
-        }
-
-        /* 箭头浮动动画 */
-        @keyframes arrowFloat {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(8px); }
-            100% { transform: translateY(0px); }
-        }
-
-        /* 右侧切换按钮 */
+        /* 右侧切换按钮（优化点击响应） */
         .next-btn {
             position: fixed;
             right: 30px;
@@ -93,7 +78,7 @@
             width: 60px;
             height: 60px;
             border-radius: 50%;
-            background-color: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.5);
             color: white;
             border: none;
             font-size: 30px;
@@ -102,37 +87,37 @@
             justify-content: center;
             align-items: center;
             z-index: 2;
-            transition: all 0.3s ease;
+            /* 点击无延迟 */
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            transition: all 0.2s ease;
         }
 
         .next-btn:hover {
-            background-color: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.8);
             transform: translateY(50%) scale(1.1);
         }
 
-        .Project-img {
-            display: none;
+        /* 动画（降低性能消耗） */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+            100% { transform: translateY(0px); }
+        }
+        @keyframes arrowFloat {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(8px); }
+            100% { transform: translateY(0px); }
         }
 
-        /* 👇 移动端适配（核心修改） */
+        /* 移动端适配（无卡顿版） */
         @media (max-width: 768px) {
-            /* 移动端背景图调整：避免拉伸，优先显示核心内容 */
             body {
-                background-size: contain; /* 改为“包含”，图片完整显示不拉伸 */
-                background-attachment: scroll; /* 取消固定，提升性能 */
-                background-color: #000; /* 图片外的区域填黑色，更协调 */
+                background-size: cover; /* 保留cover，比contain更流畅 */
+                background-attachment: scroll; /* 取消固定，避免手机卡顿 */
             }
-
-            /* 文字和箭头适配 */
-            #zhaozha-title {
-                font-size: 36px; /* 字号缩小 */
-                margin-top: -100px; /* 微调位置，避免被图片遮挡 */
-            }
-            .down-arrow {
-                font-size: 20px; /* 箭头缩小 */
-            }
-
-            /* 切换按钮适配 */
+            #zhaozha-title { font-size: 36px; }
+            .down-arrow { font-size: 20px; }
             .next-btn {
                 width: 40px;
                 height: 40px;
@@ -140,6 +125,9 @@
                 right: 15px;
             }
         }
+
+        /* 隐藏冗余元素 */
+        .Project-img { display: none; }
     </style>
 </head>
 <body>
@@ -152,17 +140,27 @@
     <button class="next-btn">▶</button>
 
     <script>
+        // 图片列表（提前缓存）
         const bgImages = [
             "fengmiantu.png",
-            "fengmiantu2.png",
+            "fengmiantu2.png"
         ];
         let currentIndex = 0;
-
-        const nextBtn = document.querySelector('.next-btn');
         const body = document.body;
+        const nextBtn = document.querySelector('.next-btn');
 
+        // 提前缓存所有图片，切换时无加载延迟
+        const imageCache = [];
+        bgImages.forEach(src => {
+            const img = new Image();
+            img.src = src;
+            imageCache.push(img);
+        });
+
+        // 点击切换（无卡顿逻辑）
         nextBtn.addEventListener('click', () => {
             currentIndex = (currentIndex + 1) % bgImages.length;
+            // 直接用缓存的图片，无加载延迟
             body.style.backgroundImage = `url("${bgImages[currentIndex]}")`;
         });
     </script>
