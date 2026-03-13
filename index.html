@@ -1,36 +1,63 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>测试页面</title>
     <link rel="stylesheet" href="style.css">
 
-
     <style>
-        #zhaozha-title{
-            text-align: center;
-            font-size: 55px;
-
-
-
-
-
-
-
-
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
+        body {
+            background-image: url("fengmiantu.png");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            min-height: 100vh;
+            
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
 
+        #zhaozha-title {
+            text-align: center;
+            font-size: 55px;
+            color: white;
+            text-shadow: 2px 2px 8px #000;
+            z-index: 1;
 
+            /* 👇 这里加微微浮动动画 */
+            animation: float 3s ease-in-out infinite;
+        }
 
+        /* 👇 动画定义：轻轻上下飘 */
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-8px); /* 浮动高度，很小很柔和 */
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
 
-
+        .Project-img {
+            display: none;
+        }
     </style>
 </head>
 <body>
-    <p id="zhaozha-title">“欢迎来到嘲哳 Project”  </p>
-    <img src="fengmiantu.png" alt="嘲哳项目封面图" class="Project”-img">
-    
+    <p id="zhaozha-title">“欢迎来到嘲哳 Project”</p>
+    <img src="fengmiantu.png" alt="嘲哳项目封面图" class="Project-img">
 </body>
 </html>
