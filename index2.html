@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>嘲哳 Project - 关于我们</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+
+    <style>
+        /* 全局重置 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background: #000;
+            min-height: 100vh;
+            color: #ccc;
+            font-size: 18px;
+            line-height: 1.8;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 内容容器 */
+        .content {
+            max-width: 700px;
+            margin: 0 auto;
+            text-align: left;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 10px;
+            border: 1px solid #333;
+        }
+
+        /* 爱心样式（可选，让爱心更醒目） */
+        .heart {
+            color: #ff4444; /* 红色爱心 */
+            margin: 0 4px;
+        }
+
+        /* 返回按钮 */
+        .back-btn {
+            margin-top: 40px;
+            border: none;
+            color: white;
+            cursor: pointer;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            background: rgba(0, 0, 0, 0.7);
+            transition: background 0.1s ease;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-size: 18px;
+        }
+
+        .back-btn:hover {
+            background: rgba(0, 0, 0, 0.9);
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            body {
+                font-size: 16px;
+                padding: 15px;
+            }
+            .content {
+                padding: 20px;
+                width: 100%;
+            }
+            .back-btn {
+                padding: 10px 25px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <p>感谢你来到我们嘲哳项目组的网页<span class="heart">❤️</span>，我们是一支自发/为爱发电性质的团队，团队成员也都是喜欢失落媒体/都市传说/怪谈故事的小伙伴们，大家使出来浑身解数，渴望创造出真正的嘲哳。</p>
+        <br>
+        <p>承蒙大家的厚爱！失落媒体·嘲哳已经在各大媒体有一些反响了……</p>
+    </div>
+
+    <button class="back-btn" onclick="window.location.href='index.html'">返回主页</button>
+</body>
+</html>
