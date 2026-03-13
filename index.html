@@ -4,16 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>嘲哳 Project</title>
-    <meta http-equiv="Cache-Control" content="public, max-age=86400"> <!-- 开启浏览器缓存 -->
-    <meta http-equiv="Pragma" content="cache">
-    
-    <!-- 关键资源预加载（最高优先级） -->
-    <link rel="preload" href="bt.mp4" as="video" fetchpriority="high" crossorigin="anonymous">
-    <link rel="preload" href="1.ogg" as="audio" type="audio/ogg" fetchpriority="high">
-    <link rel="preload" href="fengmiantu.png" as="image" fetchpriority="high">
-    <link rel="preload" href="fengmiantu2.png" as="image" fetchpriority="high">
+    <!-- 关闭不必要的缓存，避免旧资源干扰 -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
 
-    <!-- 内联CSS（避免外部样式表加载延迟） -->
     <style>
         /* 全局重置 */
         * {
@@ -28,49 +22,48 @@
             min-height: 100vh;
             overflow: hidden;
             position: relative;
-            /* 防止加载时闪烁 */
-            opacity: 1 !important;
         }
 
-        /* 视频背景（固定，不切换）- 预加载优化 */
-        .video-bg {
+        /* 视频背景 - 降级优化：先显示封面，视频后台加载 */
+        .video-container {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            object-fit: cover;
-            object-position: center;
+            background: #000; /* 兜底黑色 */
             z-index: 1;
-            /* 视频预加载策略 */
-            preload: auto;
-            /* 防止视频加载前空白 */
-            background: #000;
         }
 
-        /* 图片层（叠加在视频上，可切换）- 无延迟切换 */
+        .video-bg {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            /* 视频懒加载，不阻塞首屏 */
+            preload: none;
+            display: block;
+        }
+
+        /* 图片层 - 占位符+渐进加载 */
         .image-layer {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
+            background: #000; /* 占位符 */
             background-size: cover;
             background-position: center;
-            background-repeat: no-repeat;
             z-index: 2;
-            /* 取消过渡动画避免延迟感知 */
-            transition: none;
-            /* 初始隐藏 + 防止闪烁 */
             display: none;
-            background-color: #000;
         }
 
         .image-layer.active {
             display: block;
         }
 
-        /* 标题容器 - 无延迟显示 */
+        /* 标题容器 - 秒显，不依赖资源 */
         .title-container {
             position: fixed;
             top: 50%;
@@ -78,29 +71,26 @@
             transform: translate(-50%, -50%);
             z-index: 999;
             pointer-events: none;
-            /* 取消过渡动画避免延迟 */
-            transition: none;
         }
 
         .title-container.hidden {
             display: none;
         }
 
-        /* 标题样式 */
         #zhaozha-title {
             text-align: center;
             font-size: 60px;
             color: #fff;
-            text-shadow: 0 0 15px #000, 0 0 30px #000, 3px 3px 6px rgba(0,0,0,0.9);
+            text-shadow: 0 0 15px #000;
             background: rgba(0, 0, 0, 0.6);
             padding: 20px 40px;
             border-radius: 10px;
             animation: float 4s ease-in-out infinite;
-            /* 硬件加速 */
+            /* 强制硬件加速，秒显 */
             transform: translateZ(0);
         }
 
-        /* 按钮样式统一优化 - 无延迟交互 */
+        /* 按钮样式 - 简化交互，减少渲染开销 */
         .prev-btn, .next-btn, .home-btn, .music-btn {
             position: fixed;
             border: none;
@@ -109,16 +99,10 @@
             z-index: 20;
             touch-action: manipulation;
             -webkit-tap-highlight-color: transparent;
-            /* 硬件加速 + 无延迟hover */
-            transform: translateZ(0);
-            transition: all 0.1s ease;
-            /* 防止点击延迟 */
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            user-select: none;
+            background: rgba(0, 0, 0, 0.7);
+            transition: background 0.1s ease;
         }
 
-        /* 左侧切换按钮（切下一张图） */
         .prev-btn {
             left: 30px;
             bottom: 50%;
@@ -126,19 +110,12 @@
             width: 60px;
             height: 60px;
             border-radius: 50%;
-            background: rgba(0, 0, 0, 0.7);
             font-size: 30px;
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        .prev-btn:hover {
-            background: rgba(0, 0, 0, 0.9);
-            transform: translateY(50%) scale(1.1);
-        }
-
-        /* 右侧切换按钮（切上一张图） */
         .next-btn {
             right: 30px;
             bottom: 50%;
@@ -146,57 +123,39 @@
             width: 60px;
             height: 60px;
             border-radius: 50%;
-            background: rgba(0, 0, 0, 0.7);
             font-size: 30px;
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        .next-btn:hover {
-            background: rgba(0, 0, 0, 0.9);
-            transform: translateY(50%) scale(1.1);
-        }
-
-        /* 回到首页按钮 */
         .home-btn {
             bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
             padding: 12px 30px;
             border-radius: 30px;
-            background: rgba(0, 0, 0, 0.7);
             font-size: 18px;
         }
 
-        .home-btn:hover {
-            background: rgba(0, 0, 0, 0.9);
-            transform: translateX(-50%) scale(1.05);
-        }
-
-        /* 音乐开关按钮 */
         .music-btn {
             top: 30px;
             right: 30px;
             padding: 10px 20px;
             border-radius: 20px;
-            background: rgba(0, 0, 0, 0.7);
             font-size: 16px;
         }
 
-        .music-btn:hover {
+        .prev-btn:hover, .next-btn:hover, .home-btn:hover, .music-btn:hover {
             background: rgba(0, 0, 0, 0.9);
-            transform: scale(1.05);
         }
 
-        /* 浮动动画 - 硬件加速 */
         @keyframes float {
             0% { transform: translateY(0px) translateZ(0); }
             50% { transform: translateY(-8px) translateZ(0); }
             100% { transform: translateY(0px) translateZ(0); }
         }
 
-        /* 隐藏音频控件 */
         audio {
             display: none;
         }
@@ -226,38 +185,26 @@
                 font-size: 14px;
             }
         }
-
-        /* 加载中状态（防止空白） */
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
-            z-index: 9999;
-            opacity: 0;
-            pointer-events: none;
-        }
     </style>
 </head>
 <body>
-    <!-- 背景音乐（预加载） -->
-    <audio id="bg-music" loop preload="auto">
+    <!-- 背景音乐 - 懒加载，不阻塞首屏 -->
+    <audio id="bg-music" loop preload="none">
         <source src="1.ogg" type="audio/ogg">
         <source src="1.mp3" type="audio/mpeg">
     </audio>
 
-    <!-- 固定视频背景（0.75倍速，预加载+自动播放） -->
-    <video class="video-bg" loop muted autoplay playsinline preload="auto">
-        <source src="bt.mp4" type="video/mp4">
-    </video>
+    <!-- 视频容器（先显示黑色背景，视频后台加载） -->
+    <div class="video-container">
+        <video class="video-bg" loop muted playsinline>
+            <source src="bt.mp4" type="video/mp4">
+        </video>
+    </div>
 
-    <!-- 可切换的图片层（预加载完成后无延迟切换） -->
+    <!-- 图片层 -->
     <div class="image-layer" id="imageLayer"></div>
 
-    <!-- 标题容器（仅首页视频显示） -->
+    <!-- 标题（秒显） -->
     <div class="title-container" id="titleContainer">
         <p id="zhaozha-title">“欢迎来到嘲哳 Project”</p>
     </div>
@@ -266,10 +213,10 @@
     <button class="prev-btn">◀</button>
     <button class="next-btn">▶</button>
     <button class="home-btn">回到首页</button>
-    <button class="music-btn">暂停音乐</button>
+    <button class="music-btn">播放音乐</button>
 
     <script>
-        // ========== 性能优化：DOM元素提前缓存 ==========
+        // ========== 核心优化：DOM缓存 + 极简变量 ==========
         const bgMusic = document.getElementById('bg-music');
         const musicBtn = document.querySelector('.music-btn');
         const imageLayer = document.getElementById('imageLayer');
@@ -279,92 +226,84 @@
         const nextBtn = document.querySelector('.next-btn');
         const homeBtn = document.querySelector('.home-btn');
 
-        // ========== 变量初始化 ==========
         let isMusicPlaying = false;
         const images = [
             "fengmiantu.png",
             "fengmiantu2.png"
         ];
         let currentImageIndex = -1;
-        
-        // 视频倍速立即生效
-        videoBg.playbackRate = 0.75;
+        let isVideoLoaded = false;
+        let areImagesLoaded = false;
 
-        // ========== 关键优化：图片预加载（强制缓存到内存） ==========
-        const preloadedImages = [];
-        function preloadAllImages() {
-            return new Promise((resolve) => {
-                let loadedCount = 0;
-                images.forEach((src, index) => {
-                    const img = new Image();
-                    // 强制缓存
-                    img.cache = "force-cache";
-                    img.src = src;
-                    img.onload = () => {
-                        preloadedImages[index] = img;
-                        loadedCount++;
-                        if (loadedCount === images.length) resolve();
-                    };
-                    // 加载失败也不影响
-                    img.onerror = () => {
-                        loadedCount++;
-                        if (loadedCount === images.length) resolve();
-                    };
-                });
+        // ========== 策略1：视频懒加载（首屏不阻塞） ==========
+        function loadVideo() {
+            if (isVideoLoaded) return;
+            // 后台加载视频，不阻塞页面渲染
+            videoBg.src = "bt.mp4";
+            videoBg.playbackRate = 0.75;
+            
+            videoBg.addEventListener('loadeddata', () => {
+                isVideoLoaded = true;
+                videoBg.play().catch(() => {}); // 静默播放，失败不提示
             });
         }
 
-        // ========== 媒体初始化（无延迟） ==========
-        async function initMedia() {
-            // 先预加载所有图片，再初始化其他
-            await preloadAllImages();
-            
-            // 音乐播放（无延迟）
-            try {
-                await bgMusic.play();
-                isMusicPlaying = true;
-                musicBtn.textContent = "暂停音乐";
-            } catch (err) {
-                musicBtn.textContent = "播放音乐";
-            }
-
-            // 视频播放（确保倍速）
-            try {
-                await videoBg.play();
-                videoBg.playbackRate = 0.75;
-            } catch (err) {
-                videoBg.playbackRate = 0.75;
-            }
-
-            // 移除监听，避免重复执行
-            document.removeEventListener('click', initMedia);
-            document.removeEventListener('touchstart', initMedia);
+        // ========== 策略2：图片懒加载（按需加载） ==========
+        const imageCache = {};
+        function loadImage(src) {
+            return new Promise((resolve) => {
+                if (imageCache[src]) {
+                    resolve(imageCache[src]);
+                    return;
+                }
+                const img = new Image();
+                img.src = src;
+                img.onload = () => {
+                    imageCache[src] = img;
+                    resolve(img);
+                };
+                img.onerror = () => resolve(null);
+            });
         }
 
-        // ========== 核心切换逻辑（无延迟） ==========
-        // 优化：直接操作DOM样式，避免重排重绘
-        function updateDisplay() {
+        // 预加载图片（后台执行，不阻塞）
+        function preloadImages() {
+            if (areImagesLoaded) return;
+            Promise.all(images.map(src => loadImage(src))).then(() => {
+                areImagesLoaded = true;
+            });
+        }
+
+        // ========== 核心切换逻辑（极简，无冗余） ==========
+        async function updateDisplay() {
             if (currentImageIndex === -1) {
-                // 首页：隐藏图片层，显示标题
+                // 首页：显示视频+标题
                 imageLayer.classList.remove('active');
                 titleContainer.classList.remove('hidden');
+                // 视频未加载则触发加载
+                if (!isVideoLoaded) loadVideo();
             } else {
-                // 非首页：直接使用预加载的图片，无延迟
+                // 非首页：加载并显示图片
                 const imgIndex = currentImageIndex % images.length;
-                imageLayer.style.backgroundImage = `url("${images[imgIndex]}")`;
+                const src = images[imgIndex];
+                // 先显示黑色占位，图片加载完成后更新
                 imageLayer.classList.add('active');
                 titleContainer.classList.add('hidden');
+                
+                // 图片未加载则加载，加载完成后更新背景
+                const img = await loadImage(src);
+                if (img) {
+                    imageLayer.style.backgroundImage = `url("${src}")`;
+                }
             }
         }
 
-        // ========== 按钮事件（无延迟绑定） ==========
-        // 左按钮：切下一张图
+        // ========== 按钮事件（极简，无延迟） ==========
         prevBtn.addEventListener('click', () => {
             currentImageIndex = (currentImageIndex + 1) % images.length;
             updateDisplay();
         });
 
-        // 右按钮：切上一张图
         nextBtn.addEventListener('click', () => {
             currentImageIndex--;
             if (currentImageIndex < -1) {
@@ -373,44 +312,42 @@
             updateDisplay();
         });
 
-        // 回到首页
         homeBtn.addEventListener('click', () => {
             currentImageIndex = -1;
             updateDisplay();
         });
 
-        // 音乐开关
         musicBtn.addEventListener('click', () => {
             if (isMusicPlaying) {
                 bgMusic.pause();
                 isMusicPlaying = false;
                 musicBtn.textContent = "播放音乐";
             } else {
+                // 音乐懒加载，点击时才加载
+                bgMusic.load();
                 bgMusic.play().catch(() => {
-                    alert("请先点击页面空白处解锁音频权限");
+                    alert("请先点击页面空白处解锁音频");
                 });
                 isMusicPlaying = true;
                 musicBtn.textContent = "暂停音乐";
             }
         });
 
-        // ========== 初始化执行（最高优先级） ==========
-        // 页面加载完成立即执行
-        window.addEventListener('DOMContentLoaded', () => {
-            // 初始显示首页
+        // ========== 初始化：秒开页面，资源后台加载 ==========
+        window.addEventListener('load', () => {
+            // 1. 立即显示标题（无依赖）
             updateDisplay();
-            // 初始化媒体（用户交互后执行）
-            document.addEventListener('click', initMedia);
-            document.addEventListener('touchstart', initMedia);
+            // 2. 后台加载视频和图片（不阻塞首屏）
+            setTimeout(() => {
+                loadVideo();
+                preloadImages();
+            }, 100); // 延迟100ms，让页面先渲染
         });
 
-        // ========== 额外优化：防止视频卡顿 ==========
-        videoBg.addEventListener('canplaythrough', () => {
-            videoBg.play();
-        });
-
-        // 禁止浏览器默认行为，提升响应速度
-        document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+        // 兜底：用户交互时强制加载视频
+        document.addEventListener('click', () => {
+            if (!isVideoLoaded) loadVideo();
+        }, { once: true });
     </script>
 </body>
 </html>
