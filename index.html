@@ -9,6 +9,8 @@
     <!-- 提前预加载核心图片 -->
     <link rel="preload" href="fengmiantu.png" as="image">
     <link rel="preload" href="fengmiantu2.png" as="image">
+    <!-- 预加载音频文件，加快播放速度 -->
+    <link rel="preload" href="1.ogg" as="audio" type="audio/ogg">
 
     <style>
         /* 全局重置 */
@@ -22,7 +24,7 @@
         body {
             background: #000;
             min-height: 100vh;
-            /* 核心修改：垂直+水平居中 */
+            /* 垂直+水平居中 */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -32,32 +34,68 @@
             background-position: center;
             background-repeat: no-repeat;
             background-attachment: fixed;
-            /* 性能优化 */
-            will-change: background-image;
-            backface-visibility: hidden;
-            transform: translateZ(0);
+            /* 优化过渡：只针对背景图 */
             transition: background-image 0.3s ease-out;
+            will-change: background-image;
+            transform: translateZ(0);
         }
 
-        /* 标题容器 */
+        /* 标题容器 - 固定层级+可隐藏 */
         .title-container {
-            position: relative;
-            z-index: 10; /* 确保文字在最上层 */
+            position: fixed;
+            z-index: 999;
+            pointer-events: none;
+            /* 默认显示，切换非首页图时隐藏 */
+            opacity: 1;
+            visibility: visible;
+            /* 隐藏/显示过渡更丝滑 */
+            transition: opacity 0.3s ease, visibility 0.3s ease;
         }
 
-        /* 标题样式（居中+突出） */
+        /* 标题隐藏样式 */
+        .title-container.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        /* 标题样式 */
         #zhaozha-title {
-            text-align: center; /* 文字水平居中 */
+            text-align: center;
             font-size: 60px;
             color: #fff;
-            /* 强化阴影对抗复杂背景 */
-            text-shadow: 0 0 10px #000, 0 0 20px #000, 2px 2px 4px rgba(0,0,0,0.8);
-            /* 半透明背景层突出文字 */
-            background: rgba(0, 0, 0, 0.5);
+            text-shadow: 0 0 15px #000, 0 0 30px #000, 3px 3px 6px rgba(0,0,0,0.9);
+            background: rgba(0, 0, 0, 0.6);
             padding: 20px 40px;
             border-radius: 10px;
-            /* 保留浮动动画 */
             animation: float 4s ease-in-out infinite;
+        }
+
+        /* 左侧切换按钮 */
+        .prev-btn {
+            position: fixed;
+            left: 30px;
+            bottom: 50%;
+            transform: translateY(50%);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            font-size: 30px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            transition: all 0.2s ease;
+        }
+
+        .prev-btn:hover {
+            background: rgba(0, 0, 0, 0.9);
+            transform: translateY(50%) scale(1.1);
         }
 
         /* 右侧切换按钮 */
@@ -88,7 +126,7 @@
             transform: translateY(50%) scale(1.1);
         }
 
-        /* 回到首页按钮样式 */
+        /* 回到首页按钮 */
         .home-btn {
             position: fixed;
             bottom: 30px;
@@ -112,11 +150,39 @@
             transform: translateX(-50%) scale(1.05);
         }
 
+        /* 音乐开关按钮 */
+        .music-btn {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            padding: 10px 20px;
+            border-radius: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            z-index: 20;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            transition: all 0.2s ease;
+        }
+
+        .music-btn:hover {
+            background: rgba(0, 0, 0, 0.9);
+            scale: 1.05;
+        }
+
         /* 浮动动画 */
         @keyframes float {
             0% { transform: translateY(0px); }
             50% { transform: translateY(-8px); }
             100% { transform: translateY(0px); }
+        }
+
+        /* 隐藏音频控件 */
+        audio {
+            display: none;
         }
 
         /* 移动端适配 */
@@ -129,6 +195,12 @@
                 font-size: 40px;
                 padding: 15px 25px;
             }
+            .prev-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+                left: 15px;
+            }
             .next-btn {
                 width: 40px;
                 height: 40px;
@@ -140,27 +212,87 @@
                 font-size: 16px;
                 bottom: 20px;
             }
+            .music-btn {
+                top: 20px;
+                right: 20px;
+                padding: 8px 15px;
+                font-size: 14px;
+            }
         }
 
         .Project-img { display: none; }
     </style>
 </head>
 <body>
+    <!-- 背景音乐：1.ogg -->
+    <audio id="bg-music" loop>
+        <source src="1.ogg" type="audio/ogg">
+        <!-- 兼容备用 -->
+        <!-- <source src="1.mp3" type="audio/mpeg"> -->
+    </audio>
+
+    <!-- 标题容器 -->
     <div class="title-container">
         <p id="zhaozha-title">“欢迎来到嘲哳 Project”</p>
     </div>
 
     <img src="fengmiantu.png" alt="嘲哳项目封面图" class="Project-img">
+    <!-- 左侧切换按钮 -->
+    <button class="prev-btn">◀</button>
+    <!-- 右侧切换按钮 -->
     <button class="next-btn">▶</button>
+    <!-- 回到首页按钮 -->
     <button class="home-btn">回到首页</button>
+    <!-- 音乐开关按钮 -->
+    <button class="music-btn">暂停音乐</button>
 
     <script>
+        // 背景音乐初始化
+        const bgMusic = document.getElementById('bg-music');
+        const musicBtn = document.querySelector('.music-btn');
+        let isMusicPlaying = false;
+
+        // 标题容器（核心：控制显示/隐藏）
+        const titleContainer = document.querySelector('.title-container');
+
+        // 解决浏览器自动播放限制
+        function playMusicInit() {
+            bgMusic.play().then(() => {
+                isMusicPlaying = true;
+                musicBtn.textContent = "暂停音乐";
+            }).catch(err => {
+                console.log("音频播放需要用户交互：", err);
+                musicBtn.textContent = "播放音乐";
+            });
+            document.removeEventListener('click', playMusicInit);
+            document.removeEventListener('touchstart', playMusicInit);
+        }
+        document.addEventListener('click', playMusicInit);
+        document.addEventListener('touchstart', playMusicInit);
+
+        // 音乐开关逻辑
+        musicBtn.addEventListener('click', () => {
+            if (isMusicPlaying) {
+                bgMusic.pause();
+                isMusicPlaying = false;
+                musicBtn.textContent = "播放音乐";
+            } else {
+                bgMusic.play().catch(() => {
+                    alert("请先点击页面空白处解锁音频播放权限");
+                });
+                isMusicPlaying = true;
+                musicBtn.textContent = "暂停音乐";
+            }
+        });
+
+        // 背景图切换逻辑
         const bgImages = [
-            "fengmiantu.png",
-            "fengmiantu2.png"
+            "fengmiantu.png",   // 索引0：首页（显示标题）
+            "fengmiantu2.png"   // 索引1：非首页（隐藏标题）
         ];
         let currentIndex = 0;
         const body = document.body;
+        const prevBtn = document.querySelector('.prev-btn');
         const nextBtn = document.querySelector('.next-btn');
         const homeBtn = document.querySelector('.home-btn');
 
@@ -172,17 +304,40 @@
             imageCache.push(img);
         });
 
-        // 切换下一张逻辑
+        // 核心函数：更新标题显示状态
+        function updateTitleDisplay() {
+            if (currentIndex === 0) {
+                // 首页（索引0）：显示标题
+                titleContainer.classList.remove('hidden');
+            } else {
+                // 非首页：隐藏标题
+                titleContainer.classList.add('hidden');
+            }
+        }
+
+        // 左侧按钮 - 切上一张
+        prevBtn.addEventListener('click', () => {
+            currentIndex = (currentIndex - 1 + bgImages.length) % bgImages.length;
+            body.style.backgroundImage = `url("${bgImages[currentIndex]}")`;
+            updateTitleDisplay(); // 切换后更新标题状态
+        });
+
+        // 右侧按钮 - 切下一张
         nextBtn.addEventListener('click', () => {
             currentIndex = (currentIndex + 1) % bgImages.length;
             body.style.backgroundImage = `url("${bgImages[currentIndex]}")`;
+            updateTitleDisplay(); // 切换后更新标题状态
         });
 
-        // 回到首页逻辑
+        // 回到首页按钮
         homeBtn.addEventListener('click', () => {
-            currentIndex = 0;
+            currentIndex = 0; // 强制切回首页
             body.style.backgroundImage = `url("${bgImages[currentIndex]}")`;
+            updateTitleDisplay(); // 显示标题
         });
+
+        // 初始化标题状态（默认显示）
+        updateTitleDisplay();
     </script>
 </body>
 </html>
