@@ -42,14 +42,12 @@
         <button id="musicBtn" class="text-lg font-bold text-gray-300 hover:text-white transition-colors tracking-wider px-2 py-1">音乐</button>
     </header>
 
-    <!-- 标题容器 -->
-    <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-40 pointer-events-none" id="titleContainer">
-        <p class="text-center text-2xl sm:text-4xl md:text-5xl lg:text-6xl text-gray-100 tracking-[0.15em] bg-black/50 px-6 py-4 sm:px-10 sm:py-6 rounded-sm animate-float font-light">欢迎来到嘲哳 Project</p>
-    </div>
-
-    <!-- 底部按钮 -->
-    <div class="fixed bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 z-40">
-        <button id="startBtn" class="text-xs sm:text-sm text-gray-400 bg-black/70 hover:text-white transition-all tracking-[0.2em] px-6 py-2 sm:px-8 sm:py-3 border border-gray-700 hover:border-gray-500 hover:bg-white/5">开始找寻</button>
+    <!-- 标题+按钮容器（核心修改：把按钮移入标题容器，统一居中） -->
+    <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-40 flex flex-col items-center gap-6 sm:gap-8">
+        <!-- 标题文字 -->
+        <p class="text-center text-2xl sm:text-4xl md:text-5xl lg:text-6xl text-gray-100 tracking-[0.15em] bg-black/50 px-6 py-4 sm:px-10 sm:py-6 rounded-sm animate-float font-light pointer-events-none">欢迎来到嘲哳 Project</p>
+        <!-- 开始按钮（移到标题下方，取消原底部定位） -->
+        <button id="startBtn" class="text-xs sm:text-sm text-gray-400 bg-black/70 hover:text-white transition-all tracking-[0.2em] px-6 py-2 sm:px-8 sm:py-3 border border-gray-700 hover:border-gray-500 hover:bg-white/5 pointer-events-auto">开始找寻</button>
     </div>
 
     <!-- 背景音乐 -->
