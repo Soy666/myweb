@@ -6,6 +6,8 @@
     <title>嘲哳 Project</title>
     <meta http-equiv="Cache-Control" content="public, max-age=86400">
     <meta http-equiv="Pragma" content="cache">
+    <!-- 预加载视频资源，提升加载速度 -->
+    <link rel="preload" as="video" href="./assets/mp4/bt.mp4" type="video/mp4" crossorigin="anonymous">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" type="image/x-icon" href="./favicon.ico">
     <style>
@@ -25,14 +27,28 @@
             left: 50%;
             transform: translate(-50%, -50%);
             width: 100vw;
-            height: auto;
+            height: 100vh;
+            object-fit: cover; /* 保证视频全屏填充，不变形 */
+            z-index: 0;
         }
     </style>
 </head>
 <body class="bg-black min-h-screen overflow-hidden relative">
-    <!-- 视频背景 -->
+    <!-- 视频背景（完全恢复，优化加载逻辑） -->
     <div class="fixed inset-0 z-0 bg-black">
-        <video id="bgVideo" loop muted playsinline autoplay preload="auto" src="./assets/mp4/bt.mp4"></video>
+        <video 
+            id="bgVideo" 
+            loop 
+            muted 
+            playsinline 
+            autoplay 
+            preload="auto"  <!-- 恢复自动预加载，保证视频快速播放 -->
+            poster="./assets/cover.jpg" <!-- 封面图，视频加载前显示 -->
+            src="./assets/mp4/bt.mp4">
+            <!-- 补充兼容格式，防止视频格式不支持 -->
+            <source src="./assets/mp4/bt.mp4" type="video/mp4">
+            <source src="./assets/mp4/bt.webm" type="video/webm">
+        </video>
         <div class="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black pointer-events-none"></div>
     </div>
 
@@ -42,15 +58,10 @@
         <button id="musicBtn" class="text-lg font-bold text-gray-300 hover:text-white transition-colors tracking-wider px-2 py-1">音乐</button>
     </header>
 
-    <!-- 标题容器 -->
-    <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-40 pointer-events-none" id="titleContainer">
-        
-        <p class="text-center text-2xl sm:text-4xl md:text-5xl lg:text-6xl text-gray-100 tracking-[0.15em] bg-black/50 px-6 py-4 sm:px-10 sm:py-6 rounded-sm animate-float font-light">欢迎来到嘲哳 Project</p>
-    </div>
-
-    <!-- 底部按钮 -->
-    <div class="fixed bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 z-40">
-        <button id="startBtn" class="text-xs sm:text-sm text-gray-400 bg-black/70 hover:text-white transition-all tracking-[0.2em] px-6 py-2 sm:px-8 sm:py-3 border border-gray-700 hover:border-gray-500 hover:bg-white/5">开始找寻</button>
+    <!-- 标题容器 + 开始按钮（按钮在标题下方，布局不变） -->
+    <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-40 flex flex-col items-center gap-6 sm:gap-8">
+        <p class="text-center text-2xl sm:text-4xl md:text-5xl lg:text-6xl text-gray-100 tracking-[0.15em] bg-black/50 px-6 py-4 sm:px-10 sm:py-6 rounded-sm animate-float font-light pointer-events-none">欢迎来到嘲哳 Project</p>
+        <button id="startBtn" class="text-xs sm:text-sm text-gray-400 bg-black/70 hover:text-white transition-all tracking-[0.2em] px-6 py-2 sm:px-8 sm:py-3 border border-gray-700 hover:border-gray-500 hover:bg-white/5 pointer-events-auto">开始找寻</button>
     </div>
 
     <!-- 背景音乐 -->
@@ -60,5 +71,46 @@
     </audio>
 
     <script src="./js/index.js"></script>
+    <script>
+        // 强制保证视频播放的核心逻辑
+        window.addEventListener('DOMContentLoaded', () => {
+            const bgVideo = document.getElementById('bgVideo');
+            const bgMusic = document.getElementById('bg-music');
+            const startBtn = document.getElementById('startBtn');
+
+            // 强制加载并播放视频，解决部分浏览器自动播放限制
+            function forcePlayVideo() {
+                bgVideo.load(); // 重新加载视频
+                bgVideo.play().then(() => {
+                    console.log('视频播放成功');
+                }).catch(err => {
+                    console.log('视频自动播放失败，尝试用户交互后播放:', err);
+                    // 监听任意点击，触发视频播放（解决浏览器策略限制）
+                    document.addEventListener('click', () => {
+                        bgVideo.play().catch(err => console.log('点击后视频播放失败:', err));
+                    }, { once: true });
+                });
+            }
+
+            // 页面加载后立即尝试播放视频
+            forcePlayVideo();
+
+            // 监听视频暂停事件，自动恢复播放
+            bgVideo.addEventListener('pause', () => {
+                setTimeout(() => {
+                    if (!bgVideo.paused) return;
+                    bgVideo.play().catch(err => console.log('恢复视频播放:', err));
+                }, 100);
+            });
+
+            // 点击开始按钮播放音乐
+            startBtn.addEventListener('click', () => {
+                bgMusic.play().catch(err => {
+                    console.log('音乐播放失败:', err);
+                    alert('请先点击页面空白处解锁音频播放');
+                });
+            });
+        });
+    </script>
 </body>
 </html>
