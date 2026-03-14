@@ -5,25 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>嘲哳 Project - 关于我们</title>
-    <!-- 1. 强化缓存：延长缓存时间+禁止重复验证，减少请求 -->
-    <meta http-equiv="Cache-Control" content="public, max-age=2592000, immutable, stale-while-revalidate=86400">
+    <!-- 优化缓存策略：开启合理缓存，减少重复加载 -->
+    <meta http-equiv="Cache-Control" content="public, max-age=86400, stale-while-revalidate=3600">
     <meta http-equiv="Pragma" content="cache">
-    <meta http-equiv="Expires" content="31536000"> <!-- 缓存1年 -->
-    
-    <!-- 2. 预加载优化：高优先级预加载首屏图片，非首屏用懒加载 -->
-    <!-- 首屏图片（巨魔图）高优先级预加载 -->
-    <link rel="preload" as="image" href="./assets/image/巨魔图.png" 
-          imagesrcset="./assets/image/巨魔图.png 1x, ./assets/image/巨魔图@2x.png 2x" 
-          imagesizes="50vw" fetchpriority="high">
-    <!-- 次屏图片（封面图）低优先级预加载，配合懒加载 -->
-    <link rel="preload" as="image" href="./assets/image/封面图.jpg" 
-          imagesrcset="./assets/image/封面图.jpg 1x, ./assets/image/封面图@2x.jpg 2x" 
-          imagesizes="50vw" fetchpriority="low" loading="lazy">
-    
-    <!-- 3. DNS预解析+预连接图片目录，减少网络握手耗时 -->
-    <link rel="dns-prefetch" href="./assets/image/">
-    <link rel="preconnect" href="./assets/image/">
-    
+    <!-- 预加载关键图片 -->
+    <link rel="preload" as="image" href="./assets/image/巨魔图.png" imagesrcset="./assets/image/巨魔图.png 2x" imagesizes="50vw">
+    <link rel="preload" as="image" href="./assets/image/封面图.jpg" imagesrcset="./assets/image/封面图.jpg 2x" imagesizes="50vw">
     <!-- 预连接CDN，加快Tailwind加载 -->
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -31,9 +18,6 @@
     <style>
         * {
             -webkit-tap-highlight-color: transparent;
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
         }
     
         html,
@@ -41,28 +25,12 @@
             touch-action: manipulation;
         }
 
-        /* 4. 图片加载优化：占位+渐进式渲染+硬件加速 */
-        .img-container {
-            position: relative;
-            width: 50%;
-            margin: 0 auto;
-            aspect-ratio: 4/3; /* 提前占位置，避免布局抖动 */
-            background: #111; /* 占位背景，无空白 */
-            border-radius: 0.25rem;
-            border: 1px solid #444;
-        }
+        /* 图片懒加载+渐进式加载优化 */
         img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: contain; /* 保持图片比例，不拉伸 */
             /* 硬件加速，提升渲染速度 */
             transform: translateZ(0);
-            will-change: opacity;
             /* 渐进式加载过渡 */
-            transition: opacity 0.5s ease-in-out;
+            transition: opacity 0.3s ease-in-out;
             opacity: 0;
         }
         img.loaded {
@@ -102,27 +70,24 @@
                 <p>
                     我们的项目起始为一名代号为岑澜的人，但她显然不是游戏的作者，而是嘲哳这个失落媒体的追寻者。继GFAP，鬼脸谱等小有名气的失落媒体起起伏伏，追寻者们只能漫无目的的寻找，甚至说是质疑到底有没有这玩意，是不是谣言？<br>在此背景下，我们逐渐有了不一样的态度，与其说坐以待毙，不如主动出击，由我们自己来创造一个真正的失落媒体！
                 </p>
-                
-                <!-- 5. 优化：提前占位容器，避免布局抖动 -->
                 <div class="pt-6 space-y-2">
-                    <div class="img-container">
-                        <img src="./assets/image/巨魔图.png" 
-                             alt="巨魔图1" 
-                             loading="eager" <!-- 首屏图片强制立即加载 -->
-                             width="400" height="300"
-                             onload="this.classList.add('loaded')">
-                    </div>
+                    <!-- 优化1：添加loading属性 + 懒加载 + 尺寸提示 -->
+                    <img src="./assets/image/巨魔图.png" 
+                         alt="巨魔图1" 
+                         class="w-1/2 h-auto mx-auto rounded-sm border border-gray-800"
+                         loading="lazy"
+                         width="400" height="300"
+                         onload="this.classList.add('loaded')">
                     <p class="text-center text-xs text-gray-500 tracking-wider">一开始爆出来的巨魔图</p>
                 </div>
-                
                 <div class="pt-6 space-y-2">
-                    <div class="img-container">
-                        <img src="./assets/image/封面图.jpg" 
-                             alt="封面图" 
-                             loading="lazy" <!-- 次屏图片懒加载 -->
-                             width="400" height="300"
-                             onload="this.classList.add('loaded')">
-                    </div>
+                    <!-- 优化2：添加loading属性 + 懒加载 + 尺寸提示 -->
+                    <img src="./assets/image/封面图.jpg" 
+                         alt="封面图" 
+                         class="w-1/2 h-auto mx-auto rounded-sm border border-gray-800"
+                         loading="lazy"
+                         width="400" height="300"
+                         onload="this.classList.add('loaded')">
                     <p class="text-center text-xs text-gray-500 tracking-wider">由美工"万俟循"老师绘制的版本</p>
                 </div>
                 
@@ -139,24 +104,15 @@
         </div>
     </div>
 
-    <!-- 6. 图片加载失败兜底+预加载容错 -->
+    <!-- 可选：图片加载失败兜底 -->
     <script>
-        // 图片加载失败时显示占位图
+        // 图片加载失败时显示占位图（可选）
         document.querySelectorAll('img').forEach(img => {
             img.onerror = function() {
                 this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iIzIyMiIvPjx0ZXh0IHg9IjIwMCIgeT0iMTUwIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIyMCIgZm9udC1mYW1pbHk9IkFyaWFsIiB7IkNvbG9yIjoiIzY2NiIsIkNvbG9yLURvcGFjayI6IiM0NDQiLCJTdGFydCI6IiLnlLXlv4MifTwvdGV4dD48L3N2Zz4=';
                 this.alt = '图片加载失败';
-                this.classList.add('loaded'); // 失败也显示占位图，无空白
             };
         });
-
-        // 强制触发预加载（兼容低版本浏览器）
-        if ('connection' in navigator && navigator.connection.saveData) {
-            // 低网速/省流量模式下，降级加载小图
-            document.querySelectorAll('img').forEach(img => {
-                img.src = img.src.replace('@2x', '');
-            });
-        }
     </script>
 </body>
 </html>
