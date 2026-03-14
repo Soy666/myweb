@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>嘲哳 Project - 项目详情</title>
+    <!-- 缓存策略优化 -->
+    <meta http-equiv="Cache-Control" content="public, max-age=86400, stale-while-revalidate=3600">
+    <meta http-equiv="Pragma" content="cache">
+    <!-- 预连接CDN -->
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/x-icon" href="./favicon.ico">
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html,
+        body {
+            touch-action: manipulation;
+        }
+
+        /* 基础动画与样式优化 */
+        .content-fade {
+            opacity: 0;
+            animation: fadeIn 0.8s ease-in-out forwards;
+        }
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+        /* 图片加载优化 */
+        img {
+            transform: translateZ(0);
+            transition: opacity 0.5s ease-in-out;
+            opacity: 0;
+            background: #1a1a1a;
+        }
+        img.loaded {
+            opacity: 1;
+        }
+        img.error {
+            opacity: 1;
+            background: #222;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body class="bg-black min-h-screen text-gray-400 text-sm sm:text-base leading-relaxed">
+    <!-- 顶部返回按钮：修复语法错误 + 正确路径 -->
+    <header
+        class="fixed top-0 left-0 right-0 z-50 px-3 py-2.5 sm:px-5 sm:py-3 flex justify-start items-center bg-gradient-to-b from-black/80 to-transparent">
+        <!-- 核心修正：补全语法 + 正确路径（适配 index/js/index.html） -->
+        <button onclick="window.location.href=C:\Users\yao\Desktop\index\index\src\index.html"
+            class="text-lg font-bold text-gray-300 hover:text-white transition-colors tracking-wider px-2 py-1">
+            返回主页
+        </button>
+    </header>
+
+    <!-- 核心内容区域 -->
+    <div class="min-h-screen flex items-center justify-center px-4 py-8 pt-20 sm:pt-24">
+        <div class="max-w-3xl w-full content-fade">
+            <div class="space-y-6 text-gray-300 border border-gray-600 rounded-2xl p-6 sm:p-8 lg:p-12">
+                <!-- 页面标题 -->
+                <h2 class="text-xl sm:text-2xl md:text-3xl text-center text-white font-light tracking-[0.1em] mb-8">
+                    嘲哳 Project · 更多故事
+                </h2>
+
+                <!-- 内容段落 -->
+                <p>
+                    随着嘲哳项目的推进，我们收集到了更多关于这个失落媒体的线索。不同于最初的猜想，「嘲哳」并非单一的游戏或影像，而是一系列碎片化的信息集合，散落于不同的网络角落。
+                </p>
+                
+                <p class="pt-4">
+                    团队成员通过梳理早期互联网存档、论坛帖子和匿名投稿，还原了更多细节：
+                </p>
+
+                <!-- 列表内容 -->
+                <ul class="list-disc list-inside space-y-2 pl-4 pt-2 text-gray-400">
+                    <li>最早的「嘲哳」相关提及出现在2012年的小众怪谈论坛，发帖者仅留下一张模糊的截图和“听见杂音就关掉”的警告；</li>
+                    <li>2015年有匿名用户声称找到过相关视频文件，但打开后只有持续的静电噪音和扭曲的画面；</li>
+                    <li>我们重构的版本，试图还原这些碎片化线索背后的故事内核。</li>
+                </ul>
+
+                <!-- 图片展示区（可替换为实际图片路径） -->
+                <div class="pt-6 space-y-2">
+                    <img src="./assets/image/线索截图.png" 
+                         alt="早期论坛线索截图" 
+                         class="w-2/3 h-auto mx-auto rounded-sm border border-gray-800"
+                         loading="lazy"
+                         width="600" height="400"
+                         onload="this.classList.add('loaded')"
+                         onerror="this.classList.add('error'); this.alt='图片加载失败';">
+                    <p class="text-center text-xs text-gray-500 tracking-wider">网友留存的早期论坛线索截图（重构版）</p>
+                </div>
+
+                <!-- 结尾内容 -->
+                <p class="pt-8 text-gray-400">
+                    我们仍在持续收集和整理相关线索，如果你有关于「嘲哳」的任何记忆或线索，欢迎通过项目邮箱联系我们。<br>
+                    所有的碎片，终将拼凑出完整的真相。
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 图片加载失败兜底脚本 -->
+    <script>
+        // 图片加载失败时的兜底处理
+        document.querySelectorAll('img').forEach(img => {
+            img.onerror = function() {
+                this.classList.add('error');
+                this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iIzIyMiIvPjx0ZXh0IHg9IjIwMCIgeT0iMTUwIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIyMCIgZm9udC1mYW1pbHk9IkFyaWFsIiB7IkNvbG9yIjoiIzY2NiIsIkNvbG9yLURvcGFjayI6IiM0NDQiLCJTdGFydCI6IiLnlLXlv4MifTwvdGV4dD48L3N2Zz4=';
+            };
+        });
+    </script>
+</body>
+</html>
