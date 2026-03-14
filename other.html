@@ -30,7 +30,7 @@
         @keyframes fadeIn {
             to { opacity: 1; }
         }
-        /* 图片加载优化 */
+        /* 图片加载优化（保留，兼容其他图片） */
         img {
             transform: translateZ(0);
             transition: opacity 0.5s ease-in-out;
@@ -49,6 +49,26 @@
             justify-content: center;
             font-size: 12px;
         }
+        /* 新增：线索按钮样式（匹配页面整体风格 + 强制居中） */
+        .btn-clue {
+            transition: all 0.3s ease;
+            border: 1px solid #4b5563;
+            background-color: rgba(31, 41, 55, 0.3);
+            /* 确保按钮文字也居中 */
+            text-align: center;
+        }
+        .btn-clue:hover {
+            background-color: rgba(55, 65, 81, 0.5);
+            border-color: #6b7280;
+            transform: translateY(-2px);
+        }
+        /* 容器强制居中（双重保障） */
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
     </style>
 </head>
 
@@ -56,8 +76,7 @@
     <!-- 顶部返回按钮：修复语法错误 + 正确路径 -->
     <header
         class="fixed top-0 left-0 right-0 z-50 px-3 py-2.5 sm:px-5 sm:py-3 flex justify-start items-center bg-gradient-to-b from-black/80 to-transparent">
-        <!-- 核心修正：补全语法 + 正确路径（适配 index/js/index.html） -->
-        <button onclick="window.location.href=C:\Users\yao\Desktop\index\index\src\index.html"
+        <button onclick="window.location.href='./index.html'"
             class="text-lg font-bold text-gray-300 hover:text-white transition-colors tracking-wider px-2 py-1">
             返回主页
         </button>
@@ -88,16 +107,18 @@
                     <li>我们重构的版本，试图还原这些碎片化线索背后的故事内核。</li>
                 </ul>
 
-                <!-- 图片展示区（可替换为实际图片路径） -->
+                <!-- 修复后的按钮区域：正确添加跳转功能 + 强制居中 -->
                 <div class="pt-6 space-y-2">
-                    <img src="./assets/image/线索截图.png" 
-                         alt="早期论坛线索截图" 
-                         class="w-2/3 h-auto mx-auto rounded-sm border border-gray-800"
-                         loading="lazy"
-                         width="600" height="400"
-                         onload="this.classList.add('loaded')"
-                         onerror="this.classList.add('error'); this.alt='图片加载失败';">
-                    <p class="text-center text-xs text-gray-500 tracking-wider">网友留存的早期论坛线索截图（重构版）</p>
+                    <div class="btn-container">
+                        <!-- 核心修正：onclick直接写在按钮标签内，无嵌套，标签闭合完整 -->
+                        <button 
+                            class="btn-clue w-2/3 rounded-sm px-8 py-4 text-lg text-gray-200 font-medium tracking-wider"
+                            onclick="window.location.href='./gift.html'"
+                        >
+                            嘲哳的线索
+                        </button>
+                    </div>
+                    <p class="text-center text-xs text-gray-500 tracking-wider">似乎可以点击进去?</p>
                 </div>
 
                 <!-- 结尾内容 -->
@@ -109,7 +130,7 @@
         </div>
     </div>
 
-    <!-- 图片加载失败兜底脚本 -->
+    <!-- 图片加载失败兜底脚本（保留，兼容其他图片） -->
     <script>
         // 图片加载失败时的兜底处理
         document.querySelectorAll('img').forEach(img => {
