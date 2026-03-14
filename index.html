@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>嘲哳 Project</title>
+    <meta http-equiv="Cache-Control" content="public, max-age=86400">
+    <meta http-equiv="Pragma" content="cache">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/x-icon" href="./favicon.ico">
+    <style>
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+            100% { transform: translateY(0px); }
+        }
+        .animate-float { animation: float 4s ease-in-out infinite; }
+        
+        * { -webkit-tap-highlight-color: transparent; }
+        html, body { touch-action: manipulation; }
+        
+        #bgVideo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100vw;
+            height: auto;
+        }
+    </style>
+</head>
+<body class="bg-black min-h-screen overflow-hidden relative">
+    <!-- 视频背景 -->
+    <div class="fixed inset-0 z-0 bg-black">
+        <video id="bgVideo" loop muted playsinline autoplay preload="auto" src="./assets/mp4/bt.mp4"></video>
+        <div class="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black pointer-events-none"></div>
+    </div>
+
+    <!-- 顶部 Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 px-3 py-2.5 sm:px-5 sm:py-3 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
+        <button id="homeBtn" class="text-lg font-bold text-gray-300 hover:text-white transition-colors tracking-wider px-2 py-1">主页</button>
+        <button id="musicBtn" class="text-lg font-bold text-gray-300 hover:text-white transition-colors tracking-wider px-2 py-1">音乐</button>
+    </header>
+
+    <!-- 标题容器 -->
+    <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-40 pointer-events-none" id="titleContainer">
+        <p class="text-center text-2xl sm:text-4xl md:text-5xl lg:text-6xl text-gray-100 tracking-[0.15em] bg-black/50 px-6 py-4 sm:px-10 sm:py-6 rounded-sm animate-float font-light">欢迎来到嘲哳 Project</p>
+    </div>
+
+    <!-- 底部按钮 -->
+    <div class="fixed bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 z-40">
+        <button id="startBtn" class="text-xs sm:text-sm text-gray-400 bg-black/70 hover:text-white transition-all tracking-[0.2em] px-6 py-2 sm:px-8 sm:py-3 border border-gray-700 hover:border-gray-500 hover:bg-white/5">开始找寻</button>
+    </div>
+
+    <!-- 背景音乐 -->
+    <audio id="bg-music" loop preload="metadata">
+        <source src="./assets/mp4/1.ogg" type="audio/ogg">
+        <source src="./assets/mp4/1.mp3" type="audio/mpeg">
+    </audio>
+
+    <script src="./js/index.js"></script>
+</body>
+</html>
