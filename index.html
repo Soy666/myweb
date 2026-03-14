@@ -2,22 +2,10 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <!-- 核心：强化移动端视口，适配刘海屏/全面屏 -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>嘲哳 Project</title>
-    <!-- 1. 强化缓存策略，减少重复请求 -->
-    <meta http-equiv="Cache-Control" content="public, max-age=2592000, immutable"> <!-- 缓存30天 -->
+    <meta http-equiv="Cache-Control" content="public, max-age=86400">
     <meta http-equiv="Pragma" content="cache">
-    <meta http-equiv="Expires" content="31536000"> <!-- 长期缓存 -->
-    
-    <!-- 2. 预连接+DNS预解析，减少网络握手耗时 -->
-    <link rel="preconnect" href="./assets/mp4/"> <!-- 预连接视频目录 -->
-    <link rel="dns-prefetch" href="./assets/mp4/">
-    
-    <!-- 3. 精准预加载：优先预加载视频第一帧，而非整个视频（大幅减少首屏加载压力） -->
-    <link rel="preload" as="image" href="./assets/cover.jpg" fetchpriority="high"> <!-- 高优先级预加载封面 -->
-    <link rel="preload" as="video" href="./assets/mp4/bt.mp4" type="video/mp4" crossorigin="anonymous" fetchpriority="high"> <!-- 高优先级预加载视频 -->
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" type="image/x-icon" href="./favicon.ico">
     <style>
@@ -28,81 +16,40 @@
         }
         .animate-float { animation: float 4s ease-in-out infinite; }
         
-        /* 移动端基础优化 */
-        * { 
-            -webkit-tap-highlight-color: transparent; 
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        html, body { 
-            touch-action: manipulation; 
-            height: 100%; /* 确保body铺满屏幕，无黑边 */
-            overflow: hidden;
-        }
+        * { -webkit-tap-highlight-color: transparent; }
+        html, body { touch-action: manipulation; }
         
-        /* 视频全屏适配（移动端核心） */
         #bgVideo {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             width: 100vw;
-            height: 100vh;
-            object-fit: cover; /* 保持比例铺满屏幕，不拉伸变形 */
-            object-position: center; /* 视频核心区域居中 */
-            z-index: 0;
-            will-change: transform;
-            backface-visibility: hidden;
-        }
-
-        /* 刘海屏/全面屏安全区适配 */
-        .safe-area-top {
-            padding-top: env(safe-area-inset-top);
-        }
-        .safe-area-bottom {
-            padding-bottom: env(safe-area-inset-bottom);
-        }
-
-        /* 移动端文字响应式优化 */
-        .title-text {
-            font-size: clamp(1.25rem, 5vw, 3.75rem); /* 随屏幕宽度自适应 */
-            line-height: 1.2; /* 优化移动端文字换行 */
+            height: auto;
         }
     </style>
 </head>
 <body class="bg-black min-h-screen overflow-hidden relative">
-    <!-- 视频背景（核心优化：加载策略+分段加载） -->
+    <!-- 视频背景 -->
     <div class="fixed inset-0 z-0 bg-black">
-        <video 
-            id="bgVideo" 
-            loop 
-            muted 
-            playsinline  <!-- 移动端内联播放，不跳全屏 -->
-            autoplay 
-            preload="metadata"  
-            poster="./assets/cover.jpg" 
-            crossorigin="anonymous"
-            src="./assets/mp4/bt.mp4">
-            <source src="./assets/mp4/bt.mp4" type="video/mp4" media="all">
-            <source src="./assets/mp4/bt.webm" type="video/webm" media="all">
-            <!-- 移动端降级提示 -->
-            <p class="text-white text-center">您的设备不支持视频播放</p>
-        </video>
+        <video id="bgVideo" loop muted playsinline autoplay preload="auto" src="./assets/mp4/bt.mp4"></video>
         <div class="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black pointer-events-none"></div>
     </div>
 
-    <!-- 顶部 Header：适配刘海屏顶部安全区 -->
-    <header class="fixed top-0 left-0 right-0 z-50 px-3 py-2.5 sm:px-5 sm:py-3 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent safe-area-top">
-        <button id="homeBtn" class="text-lg font-bold text-gray-300 hover:text-white transition-colors tracking-wider px-2 py-1 active:scale-95">主页</button>
-        <button id="musicBtn" class="text-lg font-bold text-gray-300 hover:text-white transition-colors tracking-wider px-2 py-1 active:scale-95">音乐</button>
+    <!-- 顶部 Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 px-3 py-2.5 sm:px-5 sm:py-3 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
+        <button id="homeBtn" class="text-lg font-bold text-gray-300 hover:text-white transition-colors tracking-wider px-2 py-1">主页</button>
+        <button id="musicBtn" class="text-lg font-bold text-gray-300 hover:text-white transition-colors tracking-wider px-2 py-1">音乐</button>
     </header>
 
-    <!-- 标题容器 + 开始按钮：移动端布局优化 -->
-    <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-40 flex flex-col items-center gap-6 sm:gap-8 w-full px-4">
-        <p class="text-center title-text text-gray-100 tracking-[0.15em] bg-black/50 px-4 py-3 sm:px-10 sm:py-6 rounded-sm animate-float font-light pointer-events-none">欢迎来到嘲哳 Project</p>
-        <!-- 移动端按钮优化：最小宽度+点击反馈 -->
-        <button id="startBtn" class="text-xs sm:text-sm text-gray-400 bg-black/70 hover:text-white transition-all tracking-[0.2em] px-6 py-2 sm:px-8 sm:py-3 border border-gray-700 hover:border-gray-500 hover:bg-white/5 pointer-events-auto active:scale-95 min-w-[120px] safe-area-bottom">开始找寻</button>
+    <!-- 标题容器 -->
+    <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-40 pointer-events-none" id="titleContainer">
+        <p class="text-center text-2xl sm:text-4xl md:text-5xl lg:text-6xl text-gray-100 tracking-[0.15em] bg-black/50 px-6 py-4 sm:px-10 sm:py-6 rounded-sm animate-float font-light">欢迎来到嘲哳 Project</p>
+    </div>
+
+    <!-- 底部按钮 -->
+    <div class="fixed bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 z-40">
+        <button id="startBtn" class="text-xs sm:text-sm text-gray-400 bg-black/70 hover:text-white transition-all tracking-[0.2em] px-6 py-2 sm:px-8 sm:py-3 border border-gray-700 hover:border-gray-500 hover:bg-white/5">开始找寻</button>
     </div>
 
     <!-- 背景音乐 -->
@@ -112,89 +59,5 @@
     </audio>
 
     <script src="./js/index.js"></script>
-    <script>
-        window.addEventListener('DOMContentLoaded', () => {
-            const bgVideo = document.getElementById('bgVideo');
-            const bgMusic = document.getElementById('bg-music');
-            const startBtn = document.getElementById('startBtn');
-            const musicBtn = document.getElementById('musicBtn');
-            const homeBtn = document.getElementById('homeBtn');
-
-            // 标记音乐播放状态
-            let isMusicPlaying = false;
-
-            // 6. 优化视频加载逻辑：分段加载+懒加载非关键部分
-            function optimizeVideoLoad() {
-                // 仅加载视频元数据，第一帧加载完成后立即播放
-                bgVideo.addEventListener('loadedmetadata', () => {
-                    bgVideo.play().then(() => {
-                        console.log('视频元数据加载完成，开始播放');
-                    }).catch(err => {
-                        console.log('自动播放失败，等待用户交互:', err);
-                        // 移动端首次点击解锁播放
-                        document.addEventListener('click', () => {
-                            bgVideo.play();
-                        }, { once: true });
-                    });
-                });
-
-                // 7. 视频加载失败时降级显示封面图，避免空白
-                bgVideo.addEventListener('error', () => {
-                    bgVideo.style.display = 'none';
-                    document.querySelector('.fixed.inset-0.z-0').style.backgroundImage = 'url(./assets/cover.jpg)';
-                    document.querySelector('.fixed.inset-0.z-0').style.backgroundSize = 'cover';
-                });
-
-                // 核心修复：监听视频暂停事件，自动恢复播放（防止被音频操作中断）
-                bgVideo.addEventListener('pause', () => {
-                    if (!bgVideo.ended && bgVideo.currentTime > 0 && !bgVideo.error) {
-                        bgVideo.play().catch(err => {
-                            console.log('自动恢复视频播放:', err);
-                        });
-                    }
-                });
-            }
-
-            // 立即执行优化逻辑
-            optimizeVideoLoad();
-
-            // 点击开始按钮播放音乐（适配移动端音频播放限制）
-            startBtn.addEventListener('click', () => {
-                bgMusic.play().catch(err => {
-                    console.log('音乐播放失败:', err);
-                    alert('请先点击页面空白处解锁音频播放');
-                });
-                bgVideo.play();
-            });
-
-            // 音乐按钮点击逻辑（切换播放/暂停，不影响视频）
-            musicBtn.addEventListener('click', () => {
-                if (isMusicPlaying) {
-                    bgMusic.pause();
-                    musicBtn.textContent = '音乐';
-                } else {
-                    bgMusic.play().catch(err => {
-                        console.log('音乐播放失败:', err);
-                        alert('请先点击页面空白处解锁音频播放');
-                    });
-                    musicBtn.textContent = '暂停';
-                }
-                isMusicPlaying = !isMusicPlaying;
-                bgVideo.play();
-            });
-
-            // 主页按钮点击逻辑（仅跳转/刷新，不暂停视频）
-            homeBtn.addEventListener('click', () => {
-                bgVideo.play();
-            });
-
-            // 全局点击事件：解锁音频后确保视频持续播放
-            document.addEventListener('click', () => {
-                if (bgVideo.paused) {
-                    bgVideo.play();
-                }
-            }, { passive: true });
-        });
-    </script>
 </body>
 </html>
