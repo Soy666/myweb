@@ -90,6 +90,11 @@
             const bgVideo = document.getElementById('bgVideo');
             const bgMusic = document.getElementById('bg-music');
             const startBtn = document.getElementById('startBtn');
+            const musicBtn = document.getElementById('musicBtn');
+            const homeBtn = document.getElementById('homeBtn');
+
+            // 标记音乐播放状态
+            let isMusicPlaying = false;
 
             // 6. 优化视频加载逻辑：分段加载+懒加载非关键部分
             function optimizeVideoLoad() {
@@ -111,6 +116,16 @@
                     document.querySelector('.fixed.inset-0.z-0').style.backgroundImage = 'url(./assets/cover.jpg)';
                     document.querySelector('.fixed.inset-0.z-0').style.backgroundSize = 'cover';
                 });
+
+                // 核心修复：监听视频暂停事件，自动恢复播放（防止被音频操作中断）
+                bgVideo.addEventListener('pause', () => {
+                    // 仅在视频应该播放时恢复（排除手动暂停/加载失败场景）
+                    if (!bgVideo.ended && bgVideo.currentTime > 0 && !bgVideo.error) {
+                        bgVideo.play().catch(err => {
+                            console.log('自动恢复视频播放:', err);
+                        });
+                    }
+                });
             }
 
             // 立即执行优化逻辑
@@ -122,7 +137,42 @@
                     console.log('音乐播放失败:', err);
                     alert('请先点击页面空白处解锁音频播放');
                 });
+                // 确保视频持续播放
+                bgVideo.play();
             });
+
+            // 音乐按钮点击逻辑（切换播放/暂停，不影响视频）
+            musicBtn.addEventListener('click', () => {
+                if (isMusicPlaying) {
+                    bgMusic.pause();
+                    musicBtn.textContent = '音乐';
+                } else {
+                    bgMusic.play().catch(err => {
+                        console.log('音乐播放失败:', err);
+                        alert('请先点击页面空白处解锁音频播放');
+                    });
+                    musicBtn.textContent = '暂停';
+                }
+                isMusicPlaying = !isMusicPlaying;
+                
+                // 关键：操作音乐后强制恢复视频播放
+                bgVideo.play();
+            });
+
+            // 主页按钮点击逻辑（仅跳转/刷新，不暂停视频）
+            homeBtn.addEventListener('click', () => {
+                // 如需刷新主页：window.location.reload();
+                // 如需跳转其他页面：window.location.href = './index.html';
+                // 确保视频不暂停
+                bgVideo.play();
+            });
+
+            // 全局点击事件：解锁音频后确保视频持续播放
+            document.addEventListener('click', () => {
+                if (bgVideo.paused) {
+                    bgVideo.play();
+                }
+            }, { passive: true });
         });
     </script>
 </body>
