@@ -5,17 +5,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>嘲哳 Project - 线索详情</title>
+    <!-- 1. 强化缓存策略：延长缓存时间，减少重复请求 -->
     <meta http-equiv="Cache-Control" content="public, max-age=2592000, immutable, stale-while-revalidate=86400">
     <meta http-equiv="Pragma" content="cache">
     <meta http-equiv="Expires" content="31536000">
     
-    <link rel="dns-prefetch" href="./assets/image/">
-    <link rel="preconnect" href="./assets/image/">
-    
+    <!-- 2. 优化预加载：仅预加载首屏核心图片，避免资源抢占 -->
     <link rel="preload" as="image" href="./assets/image/封面1.png" fetchpriority="high">
-    <link rel="preload" as="image" href="./assets/image/封面3.png" fetchpriority="low">
-    <link rel="preload" as="image" href="./assets/image/封面2.png" fetchpriority="low">
+    <!-- 移除低优先级图片的预加载，避免阻塞首屏 -->
     
+    <!-- 3. 移除无效的预连接（相对路径无意义） -->
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" type="image/x-icon" href="./favicon.ico">
@@ -69,8 +68,8 @@
         }
 
         .content-fade {
-            opacity: 0;
-            animation: fadeIn 0.8s ease-in-out forwards;
+            opacity: 1 !important; /* 4. 取消页面整体渐入，直接显示 */
+            animation: none !important;
         }
 
         @keyframes fadeIn {
@@ -118,10 +117,10 @@
             border: 1px solid #4b5563;
             margin: 0 auto 1rem;
             transition: all 0.3s ease;
-            opacity: 0;
+            opacity: 1 !important; /* 5. 取消图片渐入延迟，直接显示 */
             transform: translateZ(0);
             will-change: opacity, transform;
-            animation: fadeIn 1s ease-in-out forwards 0.2s;
+            animation: none !important; /* 移除图片加载动画延迟 */
             display: block;
             background: #1a1a1a;
             object-fit: contain;
@@ -136,7 +135,6 @@
             box-shadow: 0 0 15px rgba(107, 114, 128, 0.3);
         }
 
-        /* 移除loaded类相关样式（无实际作用了） */
         .clue-image.error {
             opacity: 1;
             background: #222;
@@ -191,27 +189,31 @@
             </h2>
 
             <div class="image-container">
+                <!-- 6. 首屏图片强制eager加载，提升优先级 -->
                 <img src="./assets/image/封面1.png" 
                      alt="嘲哳线索1" 
                      class="clue-image larger"  
-                     loading="eager">
+                     loading="eager"
+                     decoding="async"> <!-- 异步解码，不阻塞渲染 -->
                 <p id="wan1">由画师"万俟循"贡献的封面图1</p>
 
+                <!-- 7. 非首屏图片保留lazy，但优化加载逻辑 -->
                 <img src="./assets/image/封面3.png"
                      alt="嘲哳线索2"
                      class="clue-image"
-                     loading="lazy">
+                     loading="lazy"
+                     decoding="async">
                 <p class="image-desc">由画师"黑米"贡献的封面图2</p>
 
                 <img src="./assets/image/封面2.png"
                      alt="嘲哳线索3"
                      class="clue-image"
-                     loading="lazy">
+                     loading="lazy"
+                     decoding="async">
                 <p class="image-desc">由画师"黑米"贡献的封面图3</p>
             </div>
 
             <div class="btn-container">
-                <!-- 核心修改：替换onclick事件为弹窗提示 -->
                 <button 
                     class="btn-clue w-2/3 rounded-sm px-8 py-4 text-lg text-gray-200 font-medium tracking-wider"
                     onclick="alert('剩下的我还没写')"
@@ -224,13 +226,28 @@
     </div>
 
     <script>
-        // 仅保留图片加载失败的兜底逻辑，删除onload相关代码
+        // 8. 图片加载失败兜底 + 强制触发图片加载（无延迟）
         document.querySelectorAll('.clue-image').forEach(img => {
+            // 失败兜底逻辑保留
             img.onerror = function () {
                 this.classList.add('error');
                 this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iIzIyMiIvPjx0ZXh0IHg9IjIwMCIgeT0iMTUwIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIyMCIgZm9udC1mYW1pbHk9IkFyaWFsIiB7IkNvbG9yIjoiIzY2NiIsIkNvbG9yLURvcGFjayI6IiM0NDQiLCJTdGFydCI6IueUteWKoOi9veS6rOi9vSJ9PC90ZXh0Pjwvc3ZnPg==';
                 this.alt = '图片加载失败';
             };
+            
+            // 强制提前加载图片（针对lazy的图片，滚动时立即加载）
+            img.addEventListener('load', function() {
+                this.style.opacity = 1;
+            });
+        });
+
+        // 9. 页面加载完成后立即触发所有图片加载（兼容低版本浏览器）
+        window.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.clue-image').forEach(img => {
+                if (img.loading === 'lazy') {
+                    img.loading = 'eager'; // 强制加载非首屏图片
+                }
+            });
         });
     </script>
 </body>
