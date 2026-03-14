@@ -36,11 +36,18 @@
         img.loaded {
             opacity: 1;
         }
+        /* 按钮样式统一（和返回按钮保持一致） */
+        .btn-more {
+            transition: all 0.3s ease;
+        }
+        .btn-more:hover {
+            background-color: rgba(107, 114, 128, 0.2);
+        }
     </style>
 </head>
 
 <body class="bg-black min-h-screen text-gray-400 text-sm sm:text-base leading-relaxed">
-    <!-- 顶部 Header -->
+    <!-- 顶部 Header：返回按钮指向主页（src/index.html） -->
     <header
         class="fixed top-0 left-0 right-0 z-50 px-3 py-2.5 sm:px-5 sm:py-3 flex justify-start items-center bg-gradient-to-b from-black/80 to-transparent">
         <button onclick="window.location.href='./index.html'"
@@ -53,7 +60,7 @@
     <div class="min-h-screen flex items-center justify-center px-4 py-8 my-16">
         <div class="max-w-3xl w-full">
             <div class="space-y-6 text-gray-300 border border-gray-600 rounded-2xl p-6 px-12">
-    
+                <p>Hi!~</p>
                 <p>感谢你来到我们嘲哳项目组的网页
                     <span class="text-red-500">❤️</span>，
                     我们是一支自发/为爱发电性质的团队，团队成员也都是喜欢失落媒体/都市传说/怪谈故事的小伙伴们，大家使出来浑身解数，渴望创造出真正的嘲哳。
@@ -85,6 +92,14 @@
                 </div>
                 
                 <p class="pt-6 text-gray-600">后面我还在写····</p>
+
+                <!-- 更多内容按钮：指向第三页（同级目录的other.html） -->
+                <div class="pt-8 text-center">
+                    <button onclick="window.location.href='./other.html'"
+                        class="btn-more text-lg font-bold text-gray-300 hover:text-white transition-colors tracking-wider px-6 py-2 border border-gray-600 rounded-lg">
+                        更多内容
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -94,4 +109,10 @@
         // 图片加载失败时显示占位图（可选）
         document.querySelectorAll('img').forEach(img => {
             img.onerror = function() {
-                this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD
+                this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iIzIyMiIvPjx0ZXh0IHg9IjIwMCIgeT0iMTUwIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIyMCIgZm9udC1mYW1pbHk9IkFyaWFsIiB7IkNvbG9yIjoiIzY2NiIsIkNvbG9yLURvcGFjayI6IiM0NDQiLCJTdGFydCI6IiLnlLXlv4MifTwvdGV4dD48L3N2Zz4=';
+                this.alt = '图片加载失败';
+            };
+        });
+    </script>
+</body>
+</html>
