@@ -6,6 +6,12 @@
     <title>嘲哳 Project</title>
     <meta http-equiv="Cache-Control" content="public, max-age=2592000, immutable">
     <meta http-equiv="Pragma" content="cache">
+    <!-- 🔥 视频加速：预连接 + DNS预解析视频资源域名 -->
+    <link rel="preconnect" href="./assets/mp4/" crossorigin>
+    <link rel="dns-prefetch" href="./assets/mp4/">
+    <!-- 🔥 预加载视频资源（最高优先级） -->
+    <link rel="preload" as="video" href="./assets/mp4/bt.mp4" fetchpriority="high">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" type="image/x-icon" href="./favicon.ico">
     <style>
@@ -42,6 +48,10 @@
             transform: translate(-50%, -50%) translateZ(0);
             backface-visibility: hidden;
             will-change: transform;
+            /* 🔥 新增：强制硬件解码 + 禁用缓冲限制 */
+            -webkit-transform: translate(-50%, -50%) translateZ(0);
+            -webkit-backface-visibility: hidden;
+            -webkit-will-change: transform;
         }
     </style>
 </head>
@@ -59,6 +69,12 @@
             preload="auto"
             src="./assets/mp4/bt.mp4"
             crossorigin="anonymous"
+            <!-- 🔥 新增：最高加载优先级 + 立即解码 + 无延迟播放 -->
+            fetchpriority="high"
+            decoding="sync"
+            autoplay="autoplay"
+            muted="muted"
+            playsinline="playsinline"
         ></video>
         <div class="absolute inset-0 bg-gradient-to-b from-black via-black/20 to-black pointer-events-none"></div>
     </div>
@@ -88,8 +104,38 @@
     >
         <source src="./assets/mp4/1.ogg" type="audio/ogg">
         <source src="./assets/mp4/1.mp3" type="audio/mpeg">
-    
+    </audio>
 
+    <script>
+        // 🔥 视频加速脚本：DOM解析完成立即初始化视频
+        document.addEventListener('DOMContentLoaded', function() {
+            const bgVideo = document.getElementById('bgVideo');
+            
+            // 1. 强制视频最高优先级加载
+            bgVideo.fetchPriority = 'high';
+            
+            // 2. 立即加载视频，跳过浏览器默认延迟
+            if (bgVideo.paused && !bgVideo.readyState) {
+                bgVideo.load(); // 强制重新加载（利用预加载缓存）
+            }
+            
+            // 3. 视频可播放时立即播放，无延迟
+            bgVideo.addEventListener('canplaythrough', function() {
+                if (bgVideo.paused) {
+                    bgVideo.play().catch(e => {
+                        // 兼容移动端自动播放限制（静默失败，不影响体验）
+                        console.log('视频自动播放触发限制，尝试恢复:', e);
+                        bgVideo.muted = true;
+                        bgVideo.play();
+                    });
+                }
+            }, { once: true });
+            
+            // 4. 硬件加速兜底，确保流畅播放
+            bgVideo.style.transform = 'translate(-50%, -50%) translateZ(0)';
+            bgVideo.style.willChange = 'transform';
+        });
+    </script>
     <script src="./js/index.js"></script>
 </body>
 </html>
