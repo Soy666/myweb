@@ -8,40 +8,83 @@
     <!-- 优化缓存策略：开启合理缓存，减少重复加载 -->
     <meta http-equiv="Cache-Control" content="public, max-age=86400, stale-while-revalidate=3600">
     <meta http-equiv="Pragma" content="cache">
-    <!-- 预加载关键图片 -->
-    <link rel="preload" as="image" href="./assets/image/巨魔图.png" imagesrcset="./assets/image/巨魔图.png 2x" imagesizes="50vw">
-    <link rel="preload" as="image" href="./assets/image/封面图.jpg" imagesrcset="./assets/image/封面图.jpg 2x" imagesizes="50vw">
+    
+    <!-- 预加载关键图片（仅首屏可见的，避免资源浪费） -->
+    <link rel="preload" as="image" href="./assets/image/巨魔图.png" fetchpriority="high">
+    
     <!-- 预连接CDN，加快Tailwind加载 -->
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" type="image/x-icon" href="./favicon.ico">
+    
     <style>
         * {
             -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
     
         html,
         body {
             touch-action: manipulation;
+            scroll-behavior: smooth;
         }
 
-        /* 图片懒加载+渐进式加载优化 */
-        img {
+        /* 图片加载优化 */
+        .content-img {
             /* 硬件加速，提升渲染速度 */
             transform: translateZ(0);
+            backface-visibility: hidden;
             /* 渐进式加载过渡 */
-            transition: opacity 0.3s ease-in-out;
-            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            opacity: 0.2;
+            /* 加载中占位背景 */
+            background: #1a1a1a url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Cpath d='M15 4a11 11 0 1 0 0 22 11 11 0 0 0 0-22zm0 20a9 9 0 1 1 0-18 9 9 0 0 1 0 18z' fill='%23333'/%3E%3Cpath d='M15 7a1 1 0 0 0-1 1v8h-5a1 1 0 0 0 0 2h7a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1z' fill='%23666'%3E%3CanimateTransform attributeName='transform' type='rotate' from='0 15 15' to='360 15 15' dur='1s' repeatCount='indefinite'/%3E%3C/path%3E%3C/svg%3E") center no-repeat;
+            min-height: 100px;
         }
-        img.loaded {
+        
+        .content-img.loaded {
             opacity: 1;
+            background: none;
         }
+        
+        /* 图片加载失败样式 */
+        .content-img.error {
+            opacity: 1;
+            background: #222 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M20 5a15 15 0 1 0 0 30 15 15 0 0 0 0-30zm0 28a13 13 0 1 1 0-26 13 13 0 0 1 0 26z' fill='%23444'/%3E%3Cpath d='M22 11l-8 14-6-6 1.5-1.5L14 21l6.5-11.5L22 11z' fill='%23ff4444'/%3E%3C/svg%3E") center no-repeat;
+            border: 1px dashed #666 !important;
+        }
+
         /* 按钮样式统一（和返回按钮保持一致） */
         .btn-more {
             transition: all 0.3s ease;
         }
+        
         .btn-more:hover {
             background-color: rgba(107, 114, 128, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        
+        .btn-more:active {
+            transform: translateY(0);
+        }
+        
+        /* 头部返回按钮优化 */
+        .back-btn {
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background-color: rgba(75, 85, 99, 0.2);
+            border-radius: 0.375rem;
+        }
+        
+        /* 文本排版优化 */
+        .content-text {
+            line-height: 1.8;
+            letter-spacing: 0.05em;
         }
     </style>
 </head>
@@ -49,54 +92,62 @@
 <body class="bg-black min-h-screen text-gray-400 text-sm sm:text-base leading-relaxed">
     <!-- 顶部 Header：返回按钮指向主页（src/index.html） -->
     <header
-        class="fixed top-0 left-0 right-0 z-50 px-3 py-2.5 sm:px-5 sm:py-3 flex justify-start items-center bg-gradient-to-b from-black/80 to-transparent">
+        class="fixed top-0 left-0 right-0 z-50 px-3 py-2.5 sm:px-5 sm:py-3 flex justify-start items-center bg-gradient-to-b from-black/90 to-transparent">
         <button onclick="window.location.href='./index.html'"
-            class="text-lg font-bold  text-gray-300 hover:text-white transition-colors tracking-wider px-2 py-1">
-            返回
+            class="back-btn text-lg font-bold text-gray-300 hover:text-white transition-colors tracking-wider px-3 py-2">
+            ← 返回
         </button>
     </header>
 
     <!-- 内容区域 -->
-    <div class="min-h-screen flex items-center justify-center px-4 py-8 my-16">
+    <div class="min-h-screen pt-20 pb-10 flex items-start justify-center px-4 py-8">
         <div class="max-w-3xl w-full">
-            <div class="space-y-6 text-gray-300 border border-gray-600 rounded-2xl p-6 px-12">
-                <p>Hi!~</p>
-                <p>感谢你来到我们嘲哳项目组的网页
+            <div class="space-y-6 text-gray-300 border border-gray-600 rounded-2xl p-6 sm:p-8 md:p-10">
+                <p class="content-text text-lg">Hi!~</p>
+                
+                <p class="content-text">
+                    感谢你来到我们嘲哳项目组的网页
                     <span class="text-red-500">❤️</span>，
                     我们是一支自发/为爱发电性质的团队，团队成员也都是喜欢失落媒体/都市传说/怪谈故事的小伙伴们，大家使出来浑身解数，渴望创造出真正的嘲哳。
                 </p>
-    
-                <p>承蒙大家的厚爱！失落媒体·嘲哳已经在各大媒体有一些反响了……</p>
-                <p>
-                    我们的项目起始为一名代号为岑澜的人，但她显然不是游戏的作者，而是嘲哳这个失落媒体的追寻者。继GFAP，鬼脸谱等小有名气的失落媒体起起伏伏，追寻者们只能漫无目的的寻找，甚至说是质疑到底有没有这玩意，是不是谣言？<br>在此背景下，我们逐渐有了不一样的态度，与其说坐以待毙，不如主动出击，由我们自己来创造一个真正的失落媒体！
+        
+                <p class="content-text">承蒙大家的厚爱！失落媒体·嘲哳已经在各大媒体有一些反响了……</p>
+                
+                <p class="content-text">
+                    我们的项目起始为一名代号为岑澜的人，但她显然不是游戏的作者，而是嘲哳这个失落媒体的追寻者。继GFAP，鬼脸谱等小有名气的失落媒体起起伏伏，追寻者们只能漫无目的的寻找，甚至说是质疑到底有没有这玩意，是不是谣言？<br>
+                    在此背景下，我们逐渐有了不一样的态度，与其说坐以待毙，不如主动出击，由我们自己来创造一个真正的失落媒体！
                 </p>
-                <div class="pt-6 space-y-2">
-                    <!-- 优化1：添加loading属性 + 懒加载 + 尺寸提示 -->
+                
+                <!-- 巨魔图 -->
+                <div class="pt-6 space-y-3">
                     <img src="./assets/image/巨魔图.png" 
-                         alt="巨魔图1" 
-                         class="w-1/2 h-auto mx-auto rounded-sm border border-gray-800"
+                         alt="一开始爆出来的巨魔图" 
+                         class="content-img w-1/2 sm:w-2/3 h-auto mx-auto rounded-sm border border-gray-800"
                          loading="lazy"
                          width="400" height="300"
-                         onload="this.classList.add('loaded')">
+                         onload="this.classList.add('loaded')"
+                         onerror="this.classList.add('error'); this.alt='图片加载失败：巨魔图'">
                     <p class="text-center text-xs text-gray-500 tracking-wider">一开始爆出来的巨魔图</p>
                 </div>
-                <div class="pt-6 space-y-2">
-                    <!-- 优化2：添加loading属性 + 懒加载 + 尺寸提示 -->
+                
+                <!-- 封面图 -->
+                <div class="pt-6 space-y-3">
                     <img src="./assets/image/封面图.jpg" 
-                         alt="封面图" 
-                         class="w-1/2 h-auto mx-auto rounded-sm border border-gray-800"
+                         alt="万俟循老师绘制的封面图" 
+                         class="content-img w-1/2 sm:w-2/3 h-auto mx-auto rounded-sm border border-gray-800"
                          loading="lazy"
                          width="400" height="300"
-                         onload="this.classList.add('loaded')">
+                         onload="this.classList.add('loaded')"
+                         onerror="this.classList.add('error'); this.alt='图片加载失败：封面图'">
                     <p class="text-center text-xs text-gray-500 tracking-wider">由美工"万俟循"老师绘制的版本</p>
                 </div>
                 
-                <p class="pt-6 text-gray-600">后面我还在写····</p>
+                <p class="pt-6 text-gray-500 italic">后面我还在写····</p>
 
                 <!-- 更多内容按钮：指向第三页（同级目录的other.html） -->
                 <div class="pt-8 text-center">
                     <button onclick="window.location.href='./other.html'"
-                        class="btn-more text-lg font-bold text-gray-300 hover:text-white transition-colors tracking-wider px-6 py-2 border border-gray-600 rounded-lg">
+                        class="btn-more text-lg font-bold text-gray-300 hover:text-white transition-colors tracking-wider px-8 py-3 border border-gray-600 rounded-lg">
                         更多内容
                     </button>
                 </div>
@@ -104,14 +155,51 @@
         </div>
     </div>
 
-    <!-- 可选：图片加载失败兜底 -->
+    <!-- 图片加载优化脚本 -->
     <script>
-        // 图片加载失败时显示占位图（可选）
-        document.querySelectorAll('img').forEach(img => {
-            img.onerror = function() {
-                this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iIzIyMiIvPjx0ZXh0IHg9IjIwMCIgeT0iMTUwIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIyMCIgZm9udC1mYW1pbHk9IkFyaWFsIiB7IkNvbG9yIjoiIzY2NiIsIkNvbG9yLURvcGFjayI6IiM0NDQiLCJTdGFydCI6IiLnlLXlv4MifTwvdGV4dD48L3N2Zz4=';
-                this.alt = '图片加载失败';
-            };
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 处理所有图片
+            const images = document.querySelectorAll('.content-img');
+            
+            // 对于不支持原生lazy loading的浏览器，手动触发加载
+            if (!('loading' in HTMLImageElement.prototype)) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const img = entry.target;
+                            img.src = img.src; // 触发加载
+                            observer.unobserve(img);
+                        }
+                    });
+                }, { rootMargin: '200px 0px' });
+                
+                images.forEach(img => {
+                    observer.observe(img);
+                });
+            }
+            
+            // 图片加载失败重试机制
+            images.forEach(img => {
+                img.addEventListener('error', function() {
+                    // 最多重试1次
+                    if (!this.dataset.retried) {
+                        this.dataset.retried = 'true';
+                        // 加时间戳防缓存
+                        this.src = this.src + '?t=' + Date.now();
+                    }
+                });
+            });
+            
+            // 平滑滚动优化
+            document.querySelectorAll('a[href^="#"], button[onclick*="location.href"]').forEach(elem => {
+                elem.addEventListener('click', function(e) {
+                    // 轻微延迟，提升体验
+                    setTimeout(() => {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }, 50);
+                });
+            });
         });
     </script>
 </body>
