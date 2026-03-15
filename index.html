@@ -105,8 +105,7 @@
             playsinline 
             preload="auto" 
             src="./assets/mp4/bt.mp4"
-            <!-- 关键属性优化 -->
-            poster="./assets/mp4/bt_thumbnail.jpg"  <!-- 添加视频封面 -->
+            poster="./assets/mp4/bt_thumbnail.jpg"
             disablePictureInPicture
             controlsList="nodownload"
         ></video>
@@ -143,32 +142,21 @@
             const audio = document.getElementById('bg-music');
             
             // 1. 视频加载优化
-            // 设置视频缓冲区大小，增加预加载
             video.addEventListener('loadedmetadata', function() {
-                // 隐藏加载动画
                 videoLoader.style.display = 'none';
-                
-                // 尝试增加缓冲区
                 if (video.buffered.length > 0) {
-                    // 预加载更多内容
                     video.currentTime = 0.1;
                 }
-                
-                // 硬件加速提示
                 video.style.transform = 'translate(-50%, -50%) translateZ(0)';
             });
             
             // 2. 视频卡顿修复
-            // 监听视频卡顿事件
             let lastUpdateTime = Date.now();
             let stallCount = 0;
-            
             video.addEventListener('timeupdate', function() {
                 const now = Date.now();
-                // 检测是否卡顿（超过2秒没有更新时间）
                 if (now - lastUpdateTime > 2000) {
                     stallCount++;
-                    // 尝试修复卡顿
                     if (stallCount <= 3) {
                         fixVideoStall();
                     }
@@ -176,16 +164,10 @@
                 lastUpdateTime = now;
             });
             
-            // 视频卡顿修复函数
             function fixVideoStall() {
-                // 暂停然后重新播放
                 video.pause();
-                
-                // 重置播放位置（避免卡在关键帧）
                 const currentTime = video.currentTime;
                 video.currentTime = Math.max(0, currentTime - 0.5);
-                
-                // 延迟播放，让浏览器有时间处理
                 setTimeout(() => {
                     video.play().catch(e => {
                         console.log('视频重新播放:', e);
@@ -194,26 +176,16 @@
             }
             
             // 3. 音频播放不影响视频
-            // 音频懒加载，避免和视频抢带宽
             let audioLoaded = false;
             function loadAudio() {
                 if (audioLoaded) return;
-                
-                // 视频播放稳定后再加载音频
                 setTimeout(() => {
                     audioLoaded = true;
-                    // 预加载音频但不自动播放
                     audio.load();
-                    
-                    // 音频播放时优化
                     audio.addEventListener('play', function() {
-                        // 降低音频解码优先级，避免影响视频
                         audio.volume = 0.8;
                     });
-                    
-                    // 音频缓冲优化
                     audio.addEventListener('stalled', function() {
-                        // 音频卡顿不影响视频
                         audio.pause();
                         setTimeout(() => {
                             audio.play();
@@ -222,17 +194,13 @@
                 }, 3000);
             }
             
-            // 4. 页面交互优化
-            // 视频自动播放处理
+            // 4. 视频自动播放处理
             function initVideo() {
-                // 尝试播放视频
                 video.play().then(() => {
                     console.log('视频播放成功');
-                    // 视频播放稳定后加载音频
                     loadAudio();
                 }).catch(error => {
                     console.log('自动播放失败，等待用户交互:', error);
-                    // 等待用户交互后再播放
                     document.addEventListener('click', function playOnClick() {
                         video.play().then(() => {
                             loadAudio();
@@ -241,21 +209,19 @@
                     }, { once: true });
                 });
                 
-                // 视频错误处理
                 video.addEventListener('error', function() {
                     console.error('视频加载错误:', video.error);
-                    // 降级方案：隐藏视频，显示静态背景
                     videoLoader.style.display = 'none';
                     document.getElementById('bgVideoContainer').style.background = '#000 url("./assets/mp4/bt_thumbnail.jpg") center/cover no-repeat';
                 });
             }
             
-            // 5. 按钮交互优化
+            // 5. 按钮交互优化（核心修改：添加跳转逻辑）
+            // 音乐按钮：控制播放/暂停
             document.getElementById('musicBtn').addEventListener('click', function() {
                 if (audio.paused) {
                     audio.play().catch(e => {
                         console.log('音频播放失败:', e);
-                        // 提示用户需要交互
                         alert('需要先点击页面任意位置才能播放音乐');
                     });
                 } else {
@@ -263,14 +229,14 @@
                 }
             });
             
+            // 开始找寻按钮：跳转到 aboutme.html
             document.getElementById('startBtn').addEventListener('click', function() {
-                // 开始按钮逻辑
-                console.log('开始找寻');
+                window.location.href = './aboutme.html'; // 核心修改：添加跳转代码
             });
             
+            // 主页按钮：跳转到首页（如果需要修改，替换这里的路径即可）
             document.getElementById('homeBtn').addEventListener('click', function() {
-                // 主页按钮逻辑
-                console.log('返回主页');
+                window.location.href = './index.html'; // 可根据实际首页文件名调整
             });
             
             // 初始化视频
@@ -278,10 +244,8 @@
             
             // 6. 窗口大小变化时优化视频
             window.addEventListener('resize', function() {
-                // 防抖处理
                 clearTimeout(this.resizeTimer);
                 this.resizeTimer = setTimeout(() => {
-                    // 重新调整视频尺寸，避免变形和卡顿
                     if (!video.paused) {
                         fixVideoStall();
                     }
