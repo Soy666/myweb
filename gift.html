@@ -1,24 +1,31 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>嘲哳 Project - 线索详情</title>
-    <!-- 缓存策略优化 -->
-    <meta http-equiv="Cache-Control" content="public, max-age=2592000, immutable, stale-while-revalidate=86400">
-    <meta http-equiv="Pragma" content="cache">
-    <meta http-equiv="Expires" content="31536000">
+    <title>嘲哳 Project - 线索详情（极速版）</title>
+    <!-- 缓存策略：最大化缓存，减少重复请求 -->
+    <meta http-equiv="Cache-Control" content="public, max-age=31536000, immutable">
     
-    <!-- 预加载首图，提升首屏速度 -->
+    <!-- 🔥 极致加载优化：预连接 + DNS 预解析 + 关键资源预加载 (按优先级排列) -->
+    <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
+    <link rel="dns-prefetch" href="./assets/image/">
+    
+    <!-- 1. 首图：最高优先级预加载 (fetchpriority=high) 并设置 as="image" -->
     <link rel="preload" as="image" href="./assets/image/封面1.png" fetchpriority="high">
     
-    <!-- DNS预解析 -->
-    <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
+    <!-- 2. 视口内大概率看到的图片也加入 preload (但优先级低于首图) 同时支持响应式宽度提示 -->
+    <link rel="preload" as="image" href="./assets/image/封面3.png" fetchpriority="low" imagesizes="100vw" imagesrcset="./assets/image/封面3.png">
+    <link rel="preload" as="image" href="./assets/image/封面2.png" fetchpriority="low">
+    
+    <!-- 3. 提前解析关键域名 -->
+    <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" type="image/x-icon" href="./favicon.ico">
     
     <style>
+        /* 极致性能：硬件加速 + 无阻塞渲染 */
         * {
             -webkit-tap-highlight-color: transparent;
             margin: 0;
@@ -26,19 +33,19 @@
             box-sizing: border-box;
         }
 
-        /* 基础样式优化 */
-        html,
-        body {
+        html, body {
             touch-action: manipulation;
             background-color: #000;
             font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
             scroll-behavior: smooth;
-            user-select: none; /* 禁用文本选择，提升性能 */
+            user-select: none;
+            /* 让页面立即呈现，避免闪烁 */
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* 按钮样式优化 */
+        /* 按钮样式 */
         .btn-clue {
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             border: 1px solid #4b5563;
             background-color: rgba(31, 41, 55, 0.3);
             text-align: center;
@@ -54,45 +61,19 @@
             margin: 2rem 0 0.5rem;
         }
         
-        .btn-clue:hover {
-            background-color: rgba(55, 65, 81, 0.5);
-            border-color: #6b7280;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        }
-        
-        .btn-clue:active {
-            transform: translateY(0);
-        }
+        .btn-clue:active { transform: translateY(0); }
 
-        /* 文本样式统一 */
         #wan1, .image-desc {
             text-align: center;
             color: #9ca3af;
-            letter-spacing: 0.1em;
-            line-height: 1.6;
+            letter-spacing: 0.08em;
+            line-height: 1.5;
         }
         
-        #wan1 {
-            font-size: 18px;
-            margin-bottom: 1rem;
-        }
-        
-        .image-desc {
-            font-size: 1rem;
-            margin-bottom: 2rem;
-        }
+        #wan1 { font-size: 18px; margin-bottom: 1rem; }
+        .image-desc { font-size: 0.95rem; margin-bottom: 2rem; }
 
-        .content-fade {
-            opacity: 1 !important;
-            animation: none !important;
-        }
-
-        @keyframes fadeIn {
-            to { opacity: 1; }
-        }
-
-        /* 头部样式优化 */
+        /* 头部固定 */
         .header {
             position: fixed;
             top: 0;
@@ -103,14 +84,15 @@
             display: flex;
             align-items: center;
             background: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), transparent);
-            transform: translateZ(0); /* 硬件加速 */
+            transform: translateZ(0);
+            backdrop-filter: blur(2px); /* 轻微模糊增强质感，但不影响性能 */
         }
 
         .btn-back {
             font-size: 1.125rem;
-            font-weight: 700;
+            font-weight: 500;
             color: #d1d5db;
-            transition: all 0.3s ease;
+            transition: background 0.2s;
             padding: 0.5rem 1rem;
             background: transparent;
             border: none;
@@ -120,213 +102,204 @@
             align-items: center;
             gap: 0.5rem;
         }
+        .btn-back:hover { background-color: rgba(75, 85, 99, 0.2); }
 
-        .btn-back:hover {
-            color: #ffffff;
-            background-color: rgba(75, 85, 99, 0.2);
-        }
-
-        /* 图片容器样式 */
+        /* 图片容器 */
         .image-container {
             max-width: 90%;
             margin: 0 auto;
-            padding: 1rem;
+            padding: 1rem 0.5rem;
         }
 
-        /* 图片加载优化 - 核心改造部分 */
+        /* 🔥 核心加速：图片加载状态机 —— 无闪烁，极速呈现 */
         .clue-image {
             width: 100%;
             max-width: 700px;
             height: auto;
             border-radius: 0.75rem;
             border: 1px solid #4b5563;
-            margin: 0 auto 1rem;
-            transition: all 0.3s ease, opacity 0.5s ease-in-out;
-            opacity: 0.2; /* 初始半透明 */
-            transform: translateZ(0); /* 硬件加速 */
+            margin: 0 auto 0.5rem;
+            transition: opacity 0.15s ease-in;  /* 缩短过渡时间，更快显示 */
+            opacity: 0;
+            transform: translateZ(0);
             backface-visibility: hidden;
             display: block;
-            background: #1a1a1a url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Cpath d='M15 4a11 11 0 1 0 0 22 11 11 0 0 0 0-22zm0 20a9 9 0 1 1 0-18 9 9 0 0 1 0 18z' fill='%23333'/%3E%3Cpath d='M15 7a1 1 0 0 0-1 1v8h-5a1 1 0 0 0 0 2h7a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1z' fill='%23666'%3E%3CanimateTransform attributeName='transform' type='rotate' from='0 15 15' to='360 15 15' dur='1s' repeatCount='indefinite'/%3E%3C/path%3E%3C/svg%3E") center no-repeat;
-            min-height: 100px;
             object-fit: contain;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-            image-rendering: auto;
+            background: transparent; /* 无背景色，避免白屏 */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            /* 关键：异步解码不阻塞主线程 */
+            content-visibility: auto;
+            contain: content;
         }
 
-        /* 图片加载完成样式 */
+        /* 加载完成立即显示 */
         .clue-image.loaded {
             opacity: 1;
-            background: none;
         }
 
-        /* 图片加载失败样式 */
+        /* 错误占位极简 */
         .clue-image.error {
             opacity: 1;
-            background: #222 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M20 5a15 15 0 1 0 0 30 15 15 0 0 0 0-30zm0 28a13 13 0 1 1 0-26 13 13 0 0 1 0 26z' fill='%23444'/%3E%3Cpath d='M22 11l-8 14-6-6 1.5-1.5L14 21l6.5-11.5L22 11z' fill='%23ff4444'/%3E%3C/svg%3E") center no-repeat;
-            border: 1px dashed #666 !important;
+            background: #1a1a1a url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M20 5a15 15 0 1 0 0 30 15 15 0 0 0 0-30zm0 28a13 13 0 1 1 0-26 13 13 0 0 1 0 26z' fill='%23444'/%3E%3Cpath d='M22 11l-8 14-6-6 1.5-1.5L14 21l6.5-11.5L22 11z' fill='%23aa4444'/%3E%3C/svg%3E") center/40px no-repeat;
+            border: 1px dashed #666;
+            min-height: 160px;
         }
 
-        .clue-image.larger {
-            max-width: 800px;
-        }
+        .clue-image.larger { max-width: 800px; }
 
-        .clue-image:hover {
-            transform: translateZ(0) scale(1.01);
-            box-shadow: 0 0 20px rgba(107, 114, 128, 0.4);
-            border-color: #6b7280;
-        }
-
-        /* 主容器适配更多内容 */
         .main-container {
             min-height: 100vh;
             width: 100%;
             display: flex;
             justify-content: center;
             align-items: flex-start;
-            padding: 5rem 1rem 3rem;
-            overflow-x: hidden; /* 防止滚动抖动 */
+            padding: 5rem 1rem 2rem;
         }
 
-        /* 卡片样式优化 */
         .card {
             max-width: 800px;
             width: 100%;
             color: #d1d5db;
             border: 1px solid #4b5563;
-            border-radius: 1rem;
+            border-radius: 1.5rem;
             padding: 2rem 1.5rem;
             background-color: rgba(17, 24, 39, 0.9);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
-            transform: translateZ(0); /* 硬件加速 */
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            transform: translateZ(0);
+            backdrop-filter: blur(4px);
         }
 
         .page-title {
             font-size: 1.5rem;
             text-align: center;
-            color: #ffffff;
+            color: #fff;
             font-weight: 400;
             letter-spacing: 0.15em;
-            margin-bottom: 2.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid rgba(75, 85, 99, 0.3);
+            margin-bottom: 2rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid rgba(75,85,99,0.3);
         }
 
-        /* 底部文本样式 */
         .footer-text {
             text-align: center;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: #6b7280;
             letter-spacing: 0.2em;
-            margin-top: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        /* 让首图更大优先级视觉 */
+        .clue-image.larger {
+            max-width: 800px;
         }
     </style>
 </head>
-
-<body class="bg-black min-h-screen text-gray-400 text-sm sm:text-base leading-relaxed">
+<body class="bg-black min-h-screen text-gray-400 text-sm sm:text-base leading-relaxed antialiased">
     <header class="header">
         <button class="btn-back" onclick="window.location.href='./other.html'">
             ← 返回上一页
         </button>
     </header>
 
-    <div class="main-container content-fade">
+    <div class="main-container">
         <div class="card">
-            <h2 class="page-title">
-                嘲哳的线索
-            </h2>
+            <h2 class="page-title">嘲哳的线索</h2>
 
             <div class="image-container">
-                <!-- 首屏核心图片 - 最高优先级 -->
+                <!-- 首图：已预加载，eager + 立即解码，fetchpriority="high" 让浏览器最高优加载 -->
                 <img src="./assets/image/封面1.png" 
                      alt="嘲哳线索1 - 万俟循绘制封面" 
                      class="clue-image larger"
                      loading="eager"
+                     decoding="sync"
+                     fetchpriority="high"
                      width="800" height="600"
-                     onload="this.classList.add('loaded')"
-                     onerror='this.classList.add("error"); this.alt="图片加载失败：万俟循绘制封面"'>
+                     data-error-alt="图片加载失败：万俟循绘制封面">
 
                 <p id="wan1">由画师「万俟循」贡献的封面图</p>
 
-                <!-- 其他图片使用懒加载 -->
+                <!-- 后续图片：使用最先进的懒加载 + 提前加载 + 异步解码，完全无阻塞 -->
                 <img src="./assets/image/封面3.png"
                      alt="嘲哳线索2 - 黑米绘制封面"
                      class="clue-image"
                      loading="lazy"
+                     decoding="async"
+                     fetchpriority="low"
                      width="700" height="500"
-                     onload="this.classList.add('loaded')"
-                     onerror='this.classList.add("error"); this.alt="图片加载失败：黑米绘制封面3"'>
+                     data-error-alt="图片加载失败：黑米绘制封面3">
                 <p class="image-desc">由画师「黑米」贡献的封面图</p>
 
                 <img src="./assets/image/封面2.png"
                      alt="嘲哳线索3 - 黑米绘制封面"
                      class="clue-image"
                      loading="lazy"
+                     decoding="async"
+                     fetchpriority="low"
                      width="700" height="500"
-                     onload="this.classList.add('loaded')"
-                     onerror='this.classList.add("error"); this.alt="图片加载失败：黑米绘制封面2"'>
+                     data-error-alt="图片加载失败：黑米绘制封面2">
                 <p class="image-desc">由画师「黑米」贡献的封面图</p>
 
                 <img src="./assets/image/魔芋.png"
                      alt="嘲哳线索4 - 魔芋绘制场景图"
                      class="clue-image"
                      loading="lazy"
+                     decoding="async"
                      width="700" height="500"
-                     onload="this.classList.add('loaded')"
-                     onerror='this.classList.add("error"); this.alt="图片加载失败：魔芋绘制场景图"'>
+                     data-error-alt="图片加载失败：魔芋绘制场景图">
                 <p class="image-desc">由画师「魔芋」贡献的场景图</p>
 
                 <img src="./assets/image/小小.png"
                      alt="嘲哳线索5 - 小小绘制宣传图"
                      class="clue-image"
                      loading="lazy"
+                     decoding="async"
                      width="700" height="500"
-                     onload="this.classList.add('loaded')"
-                     onerror='this.classList.add("error"); this.alt="图片加载失败：小小绘制宣传图"'>
+                     data-error-alt="图片加载失败：小小绘制宣传图">
                 <p class="image-desc">由画师「小小」贡献的宣传图</p>
 
                 <img src="./assets/image/黑米宣传图1.png"
                      alt="嘲哳线索6 - 黑米绘制宣传图"
                      class="clue-image"
                      loading="lazy"
+                     decoding="async"
                      width="700" height="500"
-                     onload="this.classList.add('loaded')"
-                     onerror='this.classList.add("error"); this.alt="图片加载失败：黑米绘制宣传图1"'>
+                     data-error-alt="图片加载失败：黑米绘制宣传图1">
                 <p class="image-desc">由画师「黑米」贡献的宣传图</p>
 
                 <img src="./assets/image/百里无相.png"
                      alt="嘲哳线索7 - 百里无相绘制宣传图"
                      class="clue-image"
                      loading="lazy"
+                     decoding="async"
                      width="700" height="500"
-                     onload="this.classList.add('loaded')"
-                     onerror='this.classList.add("error"); this.alt="图片加载失败：百里无相绘制宣传图"'>
+                     data-error-alt="图片加载失败：百里无相绘制宣传图">
                 <p class="image-desc">由画师「百里无相」贡献的宣传图</p>
 
                 <img src="./assets/image/百里无相2.png"
                      alt="嘲哳线索8 - 百里无相绘制宣传图"
                      class="clue-image"
                      loading="lazy"
+                     decoding="async"
                      width="700" height="500"
-                     onload="this.classList.add('loaded')"
-                     onerror='this.classList.add("error"); this.alt="图片加载失败：百里无相绘制宣传图2"'>
+                     data-error-alt="图片加载失败：百里无相绘制宣传图2">
                 <p class="image-desc">由画师「百里无相」贡献的宣传图</p>
 
                 <img src="./assets/image/工作室logo绘制现场.jpg"
                      alt="嘲哳线索9 - 皮蛋绘制LOGO现场"
                      class="clue-image"
                      loading="lazy"
+                     decoding="async"
                      width="700" height="500"
-                     onload="this.classList.add('loaded')"
-                     onerror='this.classList.add("error"); this.alt="图片加载失败：皮蛋绘制LOGO现场"'>
+                     data-error-alt="图片加载失败：皮蛋绘制LOGO现场">
                 <p class="image-desc">由画师「皮蛋」所提供的工作室LOGO绘制现场</p>
 
                 <img src="./assets/image/logo.png"
                      alt="嘲哳线索10 - 正式版LOGO"
                      class="clue-image"
                      loading="lazy"
+                     decoding="async"
                      width="700" height="500"
-                     onload="this.classList.add('loaded')"
-                     onerror='this.classList.add("error"); this.alt="图片加载失败：正式版LOGO"'>
+                     data-error-alt="图片加载失败：正式版LOGO">
                 <p class="image-desc">正式版LOGO（小小）</p>
             </div>
 
@@ -344,54 +317,147 @@
     </div>
 
     <script>
-        // 图片加载优化脚本（参考第二个页面的优化方案）
-        document.addEventListener('DOMContentLoaded', function() {
-            // 1. 处理所有图片
-            const allImages = document.querySelectorAll('.clue-image');
+        (function() {
+            // 🔥 立即执行，保证最快速度接管
+            const win = window;
+            const doc = document;
             
-            // 2. 对不支持原生懒加载的浏览器做兼容
-            if (!('loading' in HTMLImageElement.prototype)) {
-                const observer = new IntersectionObserver((entries) => {
-                    entries.forEach(entry => {
-                        if (entry.isIntersecting) {
-                            const img = entry.target;
-                            img.src = img.src; // 触发加载
-                            observer.unobserve(img);
+            // 统一处理所有图片的 load/error 事件（彻底避免 inline 引号冲突）
+            const setupImageEvents = () => {
+                const allImages = doc.querySelectorAll('.clue-image');
+                allImages.forEach(img => {
+                    // 加载完成
+                    img.addEventListener('load', function() {
+                        this.classList.add('loaded');
+                    });
+                    
+                    // 加载失败
+                    img.addEventListener('error', function() {
+                        this.classList.add('error');
+                        const errorAlt = this.dataset.errorAlt || '图片加载失败';
+                        this.alt = errorAlt;
+                        
+                        // 失败重试（最多1次）
+                        if (!this.dataset.retry) {
+                            this.dataset.retry = '1';
+                            setTimeout(() => {
+                                if (!this.classList.contains('loaded')) {
+                                    this.src = this.src.split('?')[0] + '?retry=' + Date.now();
+                                }
+                            }, 300);
                         }
                     });
-                }, { rootMargin: '200px 0px' });
-                
-                allImages.forEach(img => {
-                    if (img.loading !== 'eager') {
-                        observer.observe(img);
-                    }
                 });
-            }
-            
-            // 3. 图片加载失败重试机制（最多1次）
-            allImages.forEach(img => {
-                img.addEventListener('error', function() {
-                    if (!this.dataset.retried) {
-                        this.dataset.retried = 'true';
-                        // 加时间戳避免缓存导致重试无效
-                        this.src = this.src + '?t=' + Date.now();
-                    }
-                });
-            });
+            };
 
-            // 4. 滚动优化（原有交互不变）
-            let lastScrollPos = 0;
-            window.addEventListener('scroll', () => {
-                const scrollTop = window.scrollY;
-                const header = document.querySelector('.header');
-                if (Math.abs(scrollTop - lastScrollPos) > 10) {
-                    header.style.background = scrollTop > 50 
-                        ? 'linear-gradient(to bottom, rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.7))' 
-                        : 'linear-gradient(to bottom, rgba(0, 0, 0, 0.9), transparent)';
-                    lastScrollPos = scrollTop;
+            // 确保首图立刻加载（由于已经preload+ eager，但以防万一）
+            const firstImg = doc.querySelector('.clue-image.larger');
+            if (firstImg && !firstImg.complete) {
+                firstImg.fetchPriority = 'high';
+            }
+
+            // 智能懒加载增强：使用IntersectionObserver提前加载 (rootMargin加大到300px 让图片更早被拉取)
+            function initLazyLoading() {
+                if ('IntersectionObserver' in win) {
+                    const imageObserver = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                const img = entry.target;
+                                if (!img.classList.contains('loaded') && !img.classList.contains('error')) {
+                                    if (!img.dataset.triggered) {
+                                        img.dataset.triggered = 'true';
+                                        img.src = img.src;
+                                    }
+                                }
+                                imageObserver.unobserve(img);
+                            }
+                        });
+                    }, { 
+                        rootMargin: '300px 0px', // 增大预加载范围
+                        threshold: 0.001
+                    });
+
+                    const allImages = doc.querySelectorAll('.clue-image:not(.larger)');
+                    allImages.forEach(img => {
+                        if (img.loading !== 'eager') {
+                            imageObserver.observe(img);
+                        }
+                    });
+                } else {
+                    // 降级：滚动触发
+                    let lazyLoadThrottle;
+                    const lazyLoad = () => {
+                        if (lazyLoadThrottle) clearTimeout(lazyLoadThrottle);
+                        lazyLoadThrottle = setTimeout(() => {
+                            const scrollImages = doc.querySelectorAll('.clue-image:not(.loaded)');
+                            scrollImages.forEach(img => {
+                                if (img.getBoundingClientRect().top < win.innerHeight + 400) {
+                                    img.src = img.src;
+                                }
+                            });
+                        }, 80);
+                    };
+                    win.addEventListener('scroll', lazyLoad, { passive: true });
+                    win.addEventListener('resize', lazyLoad, { passive: true });
+                    lazyLoad();
+                }
+            }
+
+            // 对任何已经缓存的图片立即显示（特别是预加载的那些）
+            const checkAlreadyLoaded = () => {
+                const allImgs = doc.querySelectorAll('.clue-image');
+                allImgs.forEach(img => {
+                    if (img.complete && img.naturalHeight > 0) {
+                        img.classList.add('loaded');
+                    }
+                });
+            };
+
+            // 启动
+            if (doc.readyState === 'loading') {
+                doc.addEventListener('DOMContentLoaded', () => {
+                    setupImageEvents();
+                    initLazyLoading();
+                });
+            } else {
+                setupImageEvents();
+                initLazyLoading();
+            }
+
+            win.addEventListener('load', checkAlreadyLoaded);
+
+            // 额外优化：滚动时动态改变header背景防抖 (保留)
+            let ticking = false;
+            let lastScrollY = 0;
+            win.addEventListener('scroll', () => {
+                if (!ticking) {
+                    win.requestAnimationFrame(() => {
+                        const scrollY = win.scrollY;
+                        const header = doc.querySelector('.header');
+                        if (Math.abs(scrollY - lastScrollY) > 20) {
+                            header.style.background = scrollY > 60 
+                                ? 'linear-gradient(to bottom, rgba(0,0,0,0.98), rgba(0,0,0,0.8))'
+                                : 'linear-gradient(to bottom, rgba(0,0,0,0.9), transparent)';
+                            lastScrollY = scrollY;
+                        }
+                        ticking = false;
+                    });
+                    ticking = true;
                 }
             }, { passive: true });
-        });
+
+            // 极速预加载: 额外使用requestIdleCallback预加载后续图片
+            if ('requestIdleCallback' in win) {
+                win.requestIdleCallback(() => {
+                    const pendingImgs = doc.querySelectorAll('.clue-image:not(.loaded)');
+                    pendingImgs.forEach(img => {
+                        if (img.getBoundingClientRect().top < win.innerHeight + 600) {
+                            img.src = img.src;
+                        }
+                    });
+                }, { timeout: 1000 });
+            }
+        })();
     </script>
 </body>
 </html>
