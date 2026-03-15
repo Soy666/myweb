@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>嘲哳 Project</title>
-    <meta http-equiv="Cache-Control" content="public, max-age=86400">
+    <meta http-equiv="Cache-Control" content="public, max-age=2592000, immutable">
     <meta http-equiv="Pragma" content="cache">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" type="image/x-icon" href="./favicon.ico">
@@ -15,34 +15,61 @@
             100% { transform: translateY(0px); }
         }
         .animate-float { animation: float 4s ease-in-out infinite; }
-        
-        * { -webkit-tap-highlight-color: transparent; }
-        html, body { touch-action: manipulation; }
-        
+
+        * {
+            -webkit-tap-highlight-color: transparent;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html, body {
+            touch-action: manipulation;
+            overflow: hidden;
+            background: #000;
+        }
+
+        /* 视频硬解加速，彻底不卡 */
         #bgVideo {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 100vw;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
             height: auto;
+            object-fit: cover;
+            transform: translate(-50%, -50%) translateZ(0);
+            backface-visibility: hidden;
+            will-change: transform;
         }
     </style>
 </head>
-<body class="bg-black min-h-screen overflow-hidden relative">
-    <!-- 视频背景 -->
+
+<body class="bg-black min-h-screen">
+
+    <!-- 视频背景：极致流畅 -->
     <div class="fixed inset-0 z-0 bg-black">
-        <video id="bgVideo" loop muted playsinline autoplay preload="auto" src="./assets/mp4/bt.mp4"></video>
-        <div class="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black pointer-events-none"></div>
+        <video
+            id="bgVideo"
+            loop
+            muted
+            playsinline
+            autoplay
+            preload="auto"
+            src="./assets/mp4/bt.mp4"
+            crossorigin="anonymous"
+        ></video>
+        <div class="absolute inset-0 bg-gradient-to-b from-black via-black/20 to-black pointer-events-none"></div>
     </div>
 
-    <!-- 顶部 Header -->
+    <!-- 顶部 -->
     <header class="fixed top-0 left-0 right-0 z-50 px-3 py-2.5 sm:px-5 sm:py-3 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
         <button id="homeBtn" class="text-lg font-bold text-gray-300 hover:text-white transition-colors tracking-wider px-2 py-1">主页</button>
         <button id="musicBtn" class="text-lg font-bold text-gray-300 hover:text-white transition-colors tracking-wider px-2 py-1">音乐</button>
     </header>
 
-    <!-- 标题 + 开始按钮 放在一起 -->
+    <!-- 标题 + 按钮 -->
     <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-40 flex flex-col items-center gap-6">
         <p class="text-center text-2xl sm:text-4xl md:text-5xl lg:text-6xl text-gray-100 tracking-[0.15em] bg-black/50 px-6 py-4 sm:px-10 sm:py-6 rounded-sm animate-float font-light">
             欢迎来到嘲哳 Project
@@ -52,8 +79,13 @@
         </button>
     </div>
 
-    <!-- 背景音乐 -->
-    <audio id="bg-music" loop preload="metadata">
+    <!-- 音乐：预加载 + 流畅播放 -->
+    <audio
+        id="bg-music"
+        loop
+        preload="auto"
+        crossorigin="anonymous"
+    >
         <source src="./assets/mp4/1.ogg" type="audio/ogg">
         <source src="./assets/mp4/1.mp3" type="audio/mpeg">
     
