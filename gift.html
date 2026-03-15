@@ -14,11 +14,9 @@
     <!-- 1. 首图：最高优先级预加载 (fetchpriority=high) 并设置 as="image" -->
     <link rel="preload" as="image" href="./assets/image/封面1.png" fetchpriority="high">
     
-    <!-- 2. 视口内大概率看到的图片批量预加载 (优先级递进) -->
-    <link rel="preload" as="image" href="./assets/image/封面3.png" fetchpriority="high" imagesizes="100vw">
-    <link rel="preload" as="image" href="./assets/image/封面2.png" fetchpriority="high">
-    <link rel="preload" as="image" href="./assets/image/魔芋.png" fetchpriority="medium">
-    <link rel="preload" as="image" href="./assets/image/小小.png" fetchpriority="medium">
+    <!-- 2. 视口内大概率看到的图片也加入 preload (但优先级低于首图) 同时支持响应式宽度提示 -->
+    <link rel="preload" as="image" href="./assets/image/封面3.png" fetchpriority="low" imagesizes="100vw" imagesrcset="./assets/image/封面3.png">
+    <link rel="preload" as="image" href="./assets/image/封面2.png" fetchpriority="low">
     
     <!-- 3. 提前解析关键域名 -->
     <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
@@ -41,6 +39,7 @@
             font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
             scroll-behavior: smooth;
             user-select: none;
+            /* 让页面立即呈现，避免闪烁 */
             -webkit-font-smoothing: antialiased;
         }
 
@@ -86,7 +85,7 @@
             align-items: center;
             background: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), transparent);
             transform: translateZ(0);
-            backdrop-filter: blur(2px);
+            backdrop-filter: blur(2px); /* 轻微模糊增强质感，但不影响性能 */
         }
 
         .btn-back {
@@ -105,32 +104,32 @@
         }
         .btn-back:hover { background-color: rgba(75, 85, 99, 0.2); }
 
-        /* 图片容器 - 简化间距，让图片更紧凑 */
+        /* 图片容器 */
         .image-container {
-            max-width: 100%; /* 去掉90%限制，全屏适配 */
+            max-width: 90%;
             margin: 0 auto;
-            padding: 0.5rem 0; /* 减少上下内边距 */
+            padding: 1rem 0.5rem;
         }
 
-        /* 🔥 核心调整：图片合身显示，去掉多余间距/边框 */
+        /* 🔥 核心加速：图片加载状态机 —— 无闪烁，极速呈现 */
         .clue-image {
-            width: 100%; /* 自适应容器宽度 */
-            max-width: 100%; /* 取消固定最大宽度限制，按图片实际尺寸来 */
-            height: auto; /* 保持宽高比 */
+            width: 100%;
+            max-width: 700px;
+            height: auto;
             border-radius: 0.75rem;
             border: 1px solid #4b5563;
-            margin: 0 auto 0.5rem; /* 仅保留底部小间距 */
-            transition: opacity 0.08s ease-in;
+            margin: 0 auto 0.5rem;
+            transition: opacity 0.15s ease-in;  /* 缩短过渡时间，更快显示 */
             opacity: 0;
             transform: translateZ(0);
             backface-visibility: hidden;
             display: block;
-            object-fit: contain; /* 确保图片完整显示，不拉伸 */
-            background: transparent;
+            object-fit: contain;
+            background: transparent; /* 无背景色，避免白屏 */
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            /* 关键：异步解码不阻塞主线程 */
             content-visibility: auto;
-            contain: strict;
-            will-change: opacity;
+            contain: content;
         }
 
         /* 加载完成立即显示 */
@@ -138,18 +137,15 @@
             opacity: 1;
         }
 
-        /* 错误占位极简 - 适配合身样式 */
+        /* 错误占位极简 */
         .clue-image.error {
             opacity: 1;
             background: #1a1a1a url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M20 5a15 15 0 1 0 0 30 15 15 0 0 0 0-30zm0 28a13 13 0 1 1 0-26 13 13 0 0 1 0 26z' fill='%23444'/%3E%3Cpath d='M22 11l-8 14-6-6 1.5-1.5L14 21l6.5-11.5L22 11z' fill='%23aa4444'/%3E%3C/svg%3E") center/40px no-repeat;
             border: 1px dashed #666;
-            min-height: 120px; /* 降低最小高度，更紧凑 */
+            min-height: 160px;
         }
 
-        /* 首图仅微调，不设固定最大宽度 */
-        .clue-image.larger { 
-            will-change: opacity, transform;
-        }
+        .clue-image.larger { max-width: 800px; }
 
         .main-container {
             min-height: 100vh;
@@ -157,16 +153,16 @@
             display: flex;
             justify-content: center;
             align-items: flex-start;
-            padding: 5rem 0.5rem 2rem; /* 减少左右内边距 */
+            padding: 5rem 1rem 2rem;
         }
 
         .card {
-            max-width: 100%; /* 取消800px限制，全屏显示 */
+            max-width: 800px;
             width: 100%;
             color: #d1d5db;
             border: 1px solid #4b5563;
             border-radius: 1.5rem;
-            padding: 1.5rem 1rem; /* 减少内边距，更紧凑 */
+            padding: 2rem 1.5rem;
             background-color: rgba(17, 24, 39, 0.9);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
             transform: translateZ(0);
@@ -179,7 +175,7 @@
             color: #fff;
             font-weight: 400;
             letter-spacing: 0.15em;
-            margin-bottom: 1.5rem; /* 减少底部间距 */
+            margin-bottom: 2rem;
             padding-bottom: 0.75rem;
             border-bottom: 1px solid rgba(75,85,99,0.3);
         }
@@ -190,6 +186,11 @@
             color: #6b7280;
             letter-spacing: 0.2em;
             margin-top: 1.5rem;
+        }
+        
+        /* 让首图更大优先级视觉 */
+        .clue-image.larger {
+            max-width: 800px;
         }
     </style>
 </head>
@@ -205,7 +206,7 @@
             <h2 class="page-title">嘲哳的线索</h2>
 
             <div class="image-container">
-                <!-- 首图：最高优先级 -->
+                <!-- 首图：已预加载，eager + 立即解码，fetchpriority="high" 让浏览器最高优加载 -->
                 <img src="./assets/image/封面1.png" 
                      alt="嘲哳线索1 - 万俟循绘制封面" 
                      class="clue-image larger"
@@ -217,13 +218,13 @@
 
                 <p id="wan1">由画师「万俟循」贡献的封面图</p>
 
-                <!-- 前5张图提升优先级，快速加载 -->
+                <!-- 后续图片：使用最先进的懒加载 + 提前加载 + 异步解码，完全无阻塞 -->
                 <img src="./assets/image/封面3.png"
                      alt="嘲哳线索2 - 黑米绘制封面"
                      class="clue-image"
-                     loading="eager"
+                     loading="lazy"
                      decoding="async"
-                     fetchpriority="high"
+                     fetchpriority="low"
                      width="700" height="500"
                      data-error-alt="图片加载失败：黑米绘制封面3">
                 <p class="image-desc">由画师「黑米」贡献的封面图</p>
@@ -231,9 +232,9 @@
                 <img src="./assets/image/封面2.png"
                      alt="嘲哳线索3 - 黑米绘制封面"
                      class="clue-image"
-                     loading="eager"
+                     loading="lazy"
                      decoding="async"
-                     fetchpriority="high"
+                     fetchpriority="low"
                      width="700" height="500"
                      data-error-alt="图片加载失败：黑米绘制封面2">
                 <p class="image-desc">由画师「黑米」贡献的封面图</p>
@@ -241,9 +242,8 @@
                 <img src="./assets/image/魔芋.png"
                      alt="嘲哳线索4 - 魔芋绘制场景图"
                      class="clue-image"
-                     loading="eager"
+                     loading="lazy"
                      decoding="async"
-                     fetchpriority="medium"
                      width="700" height="500"
                      data-error-alt="图片加载失败：魔芋绘制场景图">
                 <p class="image-desc">由画师「魔芋」贡献的场景图</p>
@@ -251,20 +251,17 @@
                 <img src="./assets/image/小小.png"
                      alt="嘲哳线索5 - 小小绘制宣传图"
                      class="clue-image"
-                     loading="eager"
+                     loading="lazy"
                      decoding="async"
-                     fetchpriority="medium"
                      width="700" height="500"
                      data-error-alt="图片加载失败：小小绘制宣传图">
                 <p class="image-desc">由画师「小小」贡献的宣传图</p>
 
-                <!-- 后面的图片保持懒加载，但优化预加载范围 -->
                 <img src="./assets/image/黑米宣传图1.png"
                      alt="嘲哳线索6 - 黑米绘制宣传图"
                      class="clue-image"
                      loading="lazy"
                      decoding="async"
-                     fetchpriority="low"
                      width="700" height="500"
                      data-error-alt="图片加载失败：黑米绘制宣传图1">
                 <p class="image-desc">由画师「黑米」贡献的宣传图</p>
@@ -274,7 +271,6 @@
                      class="clue-image"
                      loading="lazy"
                      decoding="async"
-                     fetchpriority="low"
                      width="700" height="500"
                      data-error-alt="图片加载失败：百里无相绘制宣传图">
                 <p class="image-desc">由画师「百里无相」贡献的宣传图</p>
@@ -284,7 +280,6 @@
                      class="clue-image"
                      loading="lazy"
                      decoding="async"
-                     fetchpriority="low"
                      width="700" height="500"
                      data-error-alt="图片加载失败：百里无相绘制宣传图2">
                 <p class="image-desc">由画师「百里无相」贡献的宣传图</p>
@@ -294,7 +289,6 @@
                      class="clue-image"
                      loading="lazy"
                      decoding="async"
-                     fetchpriority="low"
                      width="700" height="500"
                      data-error-alt="图片加载失败：皮蛋绘制LOGO现场">
                 <p class="image-desc">由画师「皮蛋」所提供的工作室LOGO绘制现场</p>
@@ -304,7 +298,6 @@
                      class="clue-image"
                      loading="lazy"
                      decoding="async"
-                     fetchpriority="low"
                      width="700" height="500"
                      data-error-alt="图片加载失败：正式版LOGO">
                 <p class="image-desc">正式版LOGO（小小）</p>
@@ -325,23 +318,24 @@
 
     <script>
         (function() {
+            // 🔥 立即执行，保证最快速度接管
             const win = window;
             const doc = document;
             
-            // 统一处理所有图片的 load/error 事件
+            // 统一处理所有图片的 load/error 事件（彻底避免 inline 引号冲突）
             const setupImageEvents = () => {
                 const allImages = doc.querySelectorAll('.clue-image');
                 allImages.forEach(img => {
-                    // 加载完成 - 立即显示
+                    // 加载完成
                     img.addEventListener('load', function() {
                         this.classList.add('loaded');
-                        this.removeEventListener('load', arguments.callee);
                     });
                     
-                    // 加载失败 - 显示占位 + 重试
+                    // 加载失败
                     img.addEventListener('error', function() {
                         this.classList.add('error');
-                        this.alt = this.dataset.errorAlt || '图片加载失败';
+                        const errorAlt = this.dataset.errorAlt || '图片加载失败';
+                        this.alt = errorAlt;
                         
                         // 失败重试（最多1次）
                         if (!this.dataset.retry) {
@@ -350,26 +344,19 @@
                                 if (!this.classList.contains('loaded')) {
                                     this.src = this.src.split('?')[0] + '?retry=' + Date.now();
                                 }
-                            }, 150);
+                            }, 300);
                         }
-                        this.removeEventListener('error', arguments.callee);
                     });
-
-                    // 如果图片已经缓存完成，立即显示
-                    if (img.complete && img.naturalHeight > 0) {
-                        img.classList.add('loaded');
-                    }
                 });
             };
 
-            // 确保首图最高优先级加载
+            // 确保首图立刻加载（由于已经preload+ eager，但以防万一）
             const firstImg = doc.querySelector('.clue-image.larger');
             if (firstImg && !firstImg.complete) {
                 firstImg.fetchPriority = 'high';
-                firstImg.src = firstImg.src;
             }
 
-            // 智能懒加载增强
+            // 智能懒加载增强：使用IntersectionObserver提前加载 (rootMargin加大到300px 让图片更早被拉取)
             function initLazyLoading() {
                 if ('IntersectionObserver' in win) {
                     const imageObserver = new IntersectionObserver((entries) => {
@@ -386,67 +373,89 @@
                             }
                         });
                     }, { 
-                        rootMargin: '600px 0px',
-                        threshold: 0
+                        rootMargin: '300px 0px', // 增大预加载范围
+                        threshold: 0.001
                     });
 
-                    // 只监听真正需要懒加载的图片
-                    const lazyImages = doc.querySelectorAll('.clue-image[loading="lazy"]');
-                    lazyImages.forEach(img => imageObserver.observe(img));
+                    const allImages = doc.querySelectorAll('.clue-image:not(.larger)');
+                    allImages.forEach(img => {
+                        if (img.loading !== 'eager') {
+                            imageObserver.observe(img);
+                        }
+                    });
                 } else {
-                    // 降级方案
+                    // 降级：滚动触发
                     let lazyLoadThrottle;
                     const lazyLoad = () => {
                         if (lazyLoadThrottle) clearTimeout(lazyLoadThrottle);
                         lazyLoadThrottle = setTimeout(() => {
-                            const scrollImages = doc.querySelectorAll('.clue-image[loading="lazy"]:not(.loaded)');
+                            const scrollImages = doc.querySelectorAll('.clue-image:not(.loaded)');
                             scrollImages.forEach(img => {
-                                if (img.getBoundingClientRect().top < win.innerHeight + 800) {
+                                if (img.getBoundingClientRect().top < win.innerHeight + 400) {
                                     img.src = img.src;
                                 }
                             });
-                        }, 40);
+                        }, 80);
                     };
-                    win.addEventListener('scroll', lazyLoad, { passive: true, capture: true });
-                    win.addEventListener('resize', lazyLoad, { passive: true, capture: true });
+                    win.addEventListener('scroll', lazyLoad, { passive: true });
+                    win.addEventListener('resize', lazyLoad, { passive: true });
                     lazyLoad();
                 }
             }
 
-            // 初始化执行
+            // 对任何已经缓存的图片立即显示（特别是预加载的那些）
+            const checkAlreadyLoaded = () => {
+                const allImgs = doc.querySelectorAll('.clue-image');
+                allImgs.forEach(img => {
+                    if (img.complete && img.naturalHeight > 0) {
+                        img.classList.add('loaded');
+                    }
+                });
+            };
+
+            // 启动
             if (doc.readyState === 'loading') {
                 doc.addEventListener('DOMContentLoaded', () => {
                     setupImageEvents();
                     initLazyLoading();
-                }, { once: true });
+                });
             } else {
                 setupImageEvents();
                 initLazyLoading();
             }
 
-            // 滚动时header背景变化
+            win.addEventListener('load', checkAlreadyLoaded);
+
+            // 额外优化：滚动时动态改变header背景防抖 (保留)
+            let ticking = false;
             let lastScrollY = 0;
             win.addEventListener('scroll', () => {
-                const scrollY = win.scrollY;
-                if (Math.abs(scrollY - lastScrollY) > 20) {
-                    const header = doc.querySelector('.header');
-                    header.style.background = scrollY > 60 
-                        ? 'linear-gradient(to bottom, rgba(0,0,0,0.98), rgba(0,0,0,0.8))'
-                        : 'linear-gradient(to bottom, rgba(0,0,0,0.9), transparent)';
-                    lastScrollY = scrollY;
+                if (!ticking) {
+                    win.requestAnimationFrame(() => {
+                        const scrollY = win.scrollY;
+                        const header = doc.querySelector('.header');
+                        if (Math.abs(scrollY - lastScrollY) > 20) {
+                            header.style.background = scrollY > 60 
+                                ? 'linear-gradient(to bottom, rgba(0,0,0,0.98), rgba(0,0,0,0.8))'
+                                : 'linear-gradient(to bottom, rgba(0,0,0,0.9), transparent)';
+                            lastScrollY = scrollY;
+                        }
+                        ticking = false;
+                    });
+                    ticking = true;
                 }
             }, { passive: true });
 
-            // 空闲时预加载剩余图片
+            // 极速预加载: 额外使用requestIdleCallback预加载后续图片
             if ('requestIdleCallback' in win) {
                 win.requestIdleCallback(() => {
-                    const pendingImgs = doc.querySelectorAll('.clue-image:not(.loaded):not(.error)');
+                    const pendingImgs = doc.querySelectorAll('.clue-image:not(.loaded)');
                     pendingImgs.forEach(img => {
-                        if (img.getBoundingClientRect().top < win.innerHeight + 1000) {
+                        if (img.getBoundingClientRect().top < win.innerHeight + 600) {
                             img.src = img.src;
                         }
                     });
-                }, { timeout: 500 });
+                }, { timeout: 1000 });
             }
         })();
     </script>
