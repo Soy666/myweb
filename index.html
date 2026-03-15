@@ -4,15 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>嘲哳 Project</title>
-    <!-- 缓存和性能优化 -->
-    <meta http-equiv="Cache-Control" content="public, max-age=86400, immutable">
+    <meta http-equiv="Cache-Control" content="public, max-age=86400">
     <meta http-equiv="Pragma" content="cache">
-    <meta http-equiv="Expires" content="31536000">
-    
-    <!-- 预加载关键资源 -->
-    <link rel="preload" as="video" href="./assets/mp4/bt.mp4" type="video/mp4" crossorigin>
-    <link rel="preload" as="audio" href="./assets/mp4/1.mp3" type="audio/mpeg" crossorigin>
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" type="image/x-icon" href="./favicon.ico">
     <style>
@@ -23,93 +16,23 @@
         }
         .animate-float { animation: float 4s ease-in-out infinite; }
         
-        * { 
-            -webkit-tap-highlight-color: transparent;
-            box-sizing: border-box;
-        }
-        html, body { 
-            touch-action: manipulation;
-            margin: 0;
-            padding: 0;
-        }
-        
-        /* 视频容器优化 - 解决卡顿核心样式 */
-        #bgVideoContainer {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            overflow: hidden;
-            z-index: 0;
-        }
+        * { -webkit-tap-highlight-color: transparent; }
+        html, body { touch-action: manipulation; }
         
         #bgVideo {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            min-width: 100%;
-            min-height: 100%;
-            width: auto;
+            width: 100vw;
             height: auto;
-            /* 硬件加速，提升播放流畅度 */
-            transform: translate(-50%, -50%) translateZ(0);
-            backface-visibility: hidden;
-            will-change: transform;
-            /* 禁用视频的默认动画，减少性能消耗 */
-            transition: none !important;
-        }
-        
-        /* 加载占位符 */
-        .video-placeholder {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1;
-        }
-        
-        .loader {
-            width: 48px;
-            height: 48px;
-            border: 5px solid #333;
-            border-bottom-color: #999;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body class="bg-black min-h-screen overflow-hidden relative">
-    <!-- 视频背景容器（优化版） -->
-    <div id="bgVideoContainer">
-        <!-- 加载占位符 -->
-        <div class="video-placeholder" id="videoLoader">
-            <div class="loader"></div>
-        </div>
-        
-        <video 
-            id="bgVideo" 
-            loop 
-            muted 
-            playsinline 
-            preload="auto" 
-            src="./assets/mp4/bt.mp4"
-            poster="./assets/mp4/bt_thumbnail.jpg"
-            disablePictureInPicture
-            controlsList="nodownload"
-        ></video>
-        
+    <!-- 视频背景 -->
+    <div class="fixed inset-0 z-0 bg-black">
+        <video id="bgVideo" loop muted playsinline autoplay preload="auto" src="./assets/mp4/bt.mp4"></video>
         <div class="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black pointer-events-none"></div>
     </div>
 
@@ -119,139 +42,22 @@
         <button id="musicBtn" class="text-lg font-bold text-gray-300 hover:text-white transition-colors tracking-wider px-2 py-1">音乐</button>
     </header>
 
-    <!-- 标题+按钮容器 -->
-    <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-40 flex flex-col items-center gap-6 sm:gap-8">
-        <!-- 标题文字 -->
-        <p class="text-center text-2xl sm:text-4xl md:text-5xl lg:text-6xl text-gray-100 tracking-[0.15em] bg-black/50 px-6 py-4 sm:px-10 sm:py-6 rounded-sm animate-float font-light pointer-events-none">欢迎来到嘲哳 Project</p>
-        <!-- 开始按钮 -->
-        <button id="startBtn" class="text-xs sm:text-sm text-gray-400 bg-black/70 hover:text-white transition-all tracking-[0.2em] px-6 py-2 sm:px-8 sm:py-3 border border-gray-700 hover:border-gray-500 hover:bg-white/5 pointer-events-auto">开始找寻</button>
+    <!-- 标题 + 开始按钮 放在一起 -->
+    <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-40 flex flex-col items-center gap-6">
+        <p class="text-center text-2xl sm:text-4xl md:text-5xl lg:text-6xl text-gray-100 tracking-[0.15em] bg-black/50 px-6 py-4 sm:px-10 sm:py-6 rounded-sm animate-float font-light">
+            欢迎来到嘲哳 Project
+        </p>
+        <button id="startBtn" class="text-xs sm:text-sm text-gray-400 bg-black/70 hover:text-white transition-all tracking-[0.2em] px-6 py-2 sm:px-8 sm:py-3 border border-gray-700 hover:border-gray-500 hover:bg-white/5">
+            开始找寻
+        </button>
     </div>
 
-    <!-- 背景音乐（优化加载） -->
-    <audio id="bg-music" loop preload="auto">
+    <!-- 背景音乐 -->
+    <audio id="bg-music" loop preload="metadata">
         <source src="./assets/mp4/1.ogg" type="audio/ogg">
         <source src="./assets/mp4/1.mp3" type="audio/mpeg">
-    </audio>
+    
 
-    <script>
-        // 视频和音频优化加载逻辑
-        document.addEventListener('DOMContentLoaded', function() {
-            // === 视频优化配置 ===
-            const video = document.getElementById('bgVideo');
-            const videoLoader = document.getElementById('videoLoader');
-            const audio = document.getElementById('bg-music');
-            
-            // 1. 视频加载优化
-            video.addEventListener('loadedmetadata', function() {
-                videoLoader.style.display = 'none';
-                if (video.buffered.length > 0) {
-                    video.currentTime = 0.1;
-                }
-                video.style.transform = 'translate(-50%, -50%) translateZ(0)';
-            });
-            
-            // 2. 视频卡顿修复
-            let lastUpdateTime = Date.now();
-            let stallCount = 0;
-            video.addEventListener('timeupdate', function() {
-                const now = Date.now();
-                if (now - lastUpdateTime > 2000) {
-                    stallCount++;
-                    if (stallCount <= 3) {
-                        fixVideoStall();
-                    }
-                }
-                lastUpdateTime = now;
-            });
-            
-            function fixVideoStall() {
-                video.pause();
-                const currentTime = video.currentTime;
-                video.currentTime = Math.max(0, currentTime - 0.5);
-                setTimeout(() => {
-                    video.play().catch(e => {
-                        console.log('视频重新播放:', e);
-                    });
-                }, 100);
-            }
-            
-            // 3. 音频播放不影响视频
-            let audioLoaded = false;
-            function loadAudio() {
-                if (audioLoaded) return;
-                setTimeout(() => {
-                    audioLoaded = true;
-                    audio.load();
-                    audio.addEventListener('play', function() {
-                        audio.volume = 0.8;
-                    });
-                    audio.addEventListener('stalled', function() {
-                        audio.pause();
-                        setTimeout(() => {
-                            audio.play();
-                        }, 500);
-                    });
-                }, 3000);
-            }
-            
-            // 4. 视频自动播放处理
-            function initVideo() {
-                video.play().then(() => {
-                    console.log('视频播放成功');
-                    loadAudio();
-                }).catch(error => {
-                    console.log('自动播放失败，等待用户交互:', error);
-                    document.addEventListener('click', function playOnClick() {
-                        video.play().then(() => {
-                            loadAudio();
-                        }).catch(e => console.log('用户交互后播放:', e));
-                        document.removeEventListener('click', playOnClick);
-                    }, { once: true });
-                });
-                
-                video.addEventListener('error', function() {
-                    console.error('视频加载错误:', video.error);
-                    videoLoader.style.display = 'none';
-                    document.getElementById('bgVideoContainer').style.background = '#000 url("./assets/mp4/bt_thumbnail.jpg") center/cover no-repeat';
-                });
-            }
-            
-            // 5. 按钮交互优化（核心修改：添加跳转逻辑）
-            // 音乐按钮：控制播放/暂停
-            document.getElementById('musicBtn').addEventListener('click', function() {
-                if (audio.paused) {
-                    audio.play().catch(e => {
-                        console.log('音频播放失败:', e);
-                        alert('需要先点击页面任意位置才能播放音乐');
-                    });
-                } else {
-                    audio.pause();
-                }
-            });
-            
-            // 开始找寻按钮：跳转到 aboutme.html
-            document.getElementById('startBtn').addEventListener('click', function() {
-                window.location.href = './aboutme.html'; // 核心修改：添加跳转代码
-            });
-            
-            // 主页按钮：跳转到首页（如果需要修改，替换这里的路径即可）
-            document.getElementById('homeBtn').addEventListener('click', function() {
-                window.location.href = './index.html'; // 可根据实际首页文件名调整
-            });
-            
-            // 初始化视频
-            initVideo();
-            
-            // 6. 窗口大小变化时优化视频
-            window.addEventListener('resize', function() {
-                clearTimeout(this.resizeTimer);
-                this.resizeTimer = setTimeout(() => {
-                    if (!video.paused) {
-                        fixVideoStall();
-                    }
-                }, 200);
-            });
-        });
-    </script>
+    <script src="./js/index.js"></script>
 </body>
 </html>
