@@ -12,7 +12,6 @@
     
     <!-- 预加载关键资源 -->
     <link rel="preload" as="image" href="./assets/image/封面1.png" fetchpriority="high">
-    <!-- 预加载前3张核心图片，提升加载优先级 -->
     <link rel="preload" as="image" href="./assets/image/封面3.png" fetchpriority="high">
     <link rel="preload" as="image" href="./assets/image/封面2.png" fetchpriority="high">
     
@@ -154,6 +153,8 @@
             /* 图片渲染优化 */
             image-rendering: -webkit-optimize-contrast;
             image-rendering: crisp-edges;
+            /* 确保图片有最小高度，避免加载失败时布局塌陷 */
+            min-height: 100px;
         }
 
         .clue-image.larger {
@@ -176,6 +177,12 @@
             font-size: 14px;
             aspect-ratio: 4/3;
             border-radius: 0.75rem;
+            border: 1px dashed #6b7280;
+        }
+
+        /* 加载中样式 */
+        .clue-image.loading {
+            background: #1a1a1a url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M20 5a15 15 0 1 0 0 30 15 15 0 0 0 0-30zm0 28a13 13 0 1 1 0-26 13 13 0 0 1 0 26z' fill='%23374151'/%3E%3Cpath d='M20 8a1 1 0 0 0-1 1v13h-8a1 1 0 0 0 0 2h10a1 1 0 0 0 1-1v-14a1 1 0 0 0-1-1z' fill='%239ca3af'%3E%3CanimateTransform attributeName='transform' type='rotate' from='0 20 20' to='360 20 20' dur='1s' repeatCount='indefinite'/%3E%3C/path%3E%3C/svg%3E") center no-repeat;
         }
 
         /* 主容器适配更多内容 */
@@ -239,17 +246,17 @@
                 <!-- 首屏核心图片 - 最高优先级加载 -->
                 <img src="./assets/image/封面1.png" 
                      alt="嘲哳线索1 - 万俟循绘制封面" 
-                     class="clue-image larger"  
+                     class="clue-image larger loading"  
                      loading="eager"
-                     decoding="sync"  <!-- 同步解码，优先渲染 -->
+                     decoding="sync"
                      fetchpriority="high">
 
                 <p id="wan1">由画师「万俟循」贡献的封面图</p>
 
-                <!-- 前3张图片都使用eager加载，提升体验 -->
+                <!-- 前3张图片都使用eager加载 -->
                 <img src="./assets/image/封面3.png"
                      alt="嘲哳线索2 - 黑米绘制封面"
-                     class="clue-image"
+                     class="clue-image loading"
                      loading="eager"
                      decoding="async"
                      fetchpriority="high">
@@ -257,67 +264,60 @@
 
                 <img src="./assets/image/封面2.png"
                      alt="嘲哳线索3 - 黑米绘制封面"
-                     class="clue-image"
+                     class="clue-image loading"
                      loading="eager"
                      decoding="async"
                      fetchpriority="high">
                 <p class="image-desc">由画师「黑米」贡献的封面图</p>
 
-                <!-- 后续图片使用智能预加载策略 -->
-                <img src="./assets/image/魔芋.jpg"
+                <!-- 后续图片 - 修复加载问题 -->
+                <img data-src="./assets/image/魔芋.jpg"
                      alt="嘲哳线索4 - 魔芋绘制场景图"
-                     class="clue-image"
+                     class="clue-image loading"
                      loading="lazy"
-                     decoding="async"
-                     fetchpriority="low">
+                     decoding="async">
                 <p class="image-desc">由画师「魔芋」贡献的场景图</p>
 
-                <img src="./assets/image/小小.png"
+                <img data-src="./assets/image/小小.png"
                      alt="嘲哳线索5 - 小小绘制宣传图"
-                     class="clue-image"
+                     class="clue-image loading"
                      loading="lazy"
-                     decoding="async"
-                     fetchpriority="low">
+                     decoding="async">
                 <p class="image-desc">由画师「小小」贡献的宣传图</p>
 
-                <img src="./assets/image/黑米宣传图1.jpg"
+                <img data-src="./assets/image/黑米宣传图1.jpg"
                      alt="嘲哳线索6 - 黑米绘制宣传图"
-                     class="clue-image"
+                     class="clue-image loading"
                      loading="lazy"
-                     decoding="async"
-                     fetchpriority="low">
+                     decoding="async">
                 <p class="image-desc">由画师「黑米」贡献的宣传图</p>
 
-                <img src="./assets/image/百里无相.png"
+                <img data-src="./assets/image/百里无相.png"
                      alt="嘲哳线索7 - 百里无相绘制宣传图"
-                     class="clue-image"
+                     class="clue-image loading"
                      loading="lazy"
-                     decoding="async"
-                     fetchpriority="low">
+                     decoding="async">
                 <p class="image-desc">由画师「百里无相」贡献的宣传图</p>
 
-                <img src="./assets/image/百里无相2.png"
+                <img data-src="./assets/image/百里无相2.png"
                      alt="嘲哳线索8 - 百里无相绘制宣传图"
-                     class="clue-image"
+                     class="clue-image loading"
                      loading="lazy"
-                     decoding="async"
-                     fetchpriority="low">
+                     decoding="async">
                 <p class="image-desc">由画师「百里无相」贡献的宣传图</p>
 
-                <img src="./assets/image/工作室logo绘制现场.jpg"
+                <img data-src="./assets/image/工作室logo绘制现场.jpg"
                      alt="嘲哳线索9 - 皮蛋绘制LOGO现场"
-                     class="clue-image"
+                     class="clue-image loading"
                      loading="lazy"
-                     decoding="async"
-                     fetchpriority="low">
+                     decoding="async">
                 <p class="image-desc">由画师「皮蛋」所提供的工作室LOGO绘制现场</p>
 
-                <img src="./assets/image/LOGO.jpg"
+                <img data-src="./assets/image/LOGO.jpg"
                      alt="嘲哳线索10 - 正式版LOGO"
-                     class="clue-image"
+                     class="clue-image loading"
                      loading="lazy"
-                     decoding="async"
-                     fetchpriority="low">
+                     decoding="async">
                 <p class="image-desc">正式版LOGO（小小）</p>
             </div>
 
@@ -335,63 +335,94 @@
     </div>
 
     <script>
-        // 高性能图片加载策略
+        // 修复图片加载问题 - 增强版图片加载策略
         document.addEventListener('DOMContentLoaded', function() {
-            // 1. 立即加载前5张图片（视口内可见范围）
-            const priorityImages = document.querySelectorAll('.clue-image');
-            const loadPriorityImages = () => {
-                // 前5张图片强制立即加载
-                for (let i = 0; i < Math.min(5, priorityImages.length); i++) {
-                    const img = priorityImages[i];
-                    if (img.loading === 'lazy') {
-                        img.loading = 'eager';
+            // 1. 初始化：移除loading属性的兼容性问题
+            document.querySelectorAll('.clue-image').forEach(img => {
+                // 移除可能导致加载问题的fetchpriority属性
+                img.removeAttribute('fetchpriority');
+                
+                // 加载完成后移除loading类
+                img.addEventListener('load', function() {
+                    this.classList.remove('loading');
+                });
+                
+                // 加载失败时重试
+                img.addEventListener('error', function() {
+                    this.classList.remove('loading');
+                    this.classList.add('error');
+                    
+                    // 重试加载机制
+                    const src = this.getAttribute('data-src') || this.getAttribute('src');
+                    if (src && !this.dataset.retried) {
+                        this.dataset.retried = 'true';
+                        setTimeout(() => {
+                            this.classList.add('loading');
+                            this.setAttribute('src', src + '?t=' + new Date().getTime());
+                        }, 1000);
                     }
-                    // 强制触发图片加载
-                    if (!img.complete) {
-                        const src = img.getAttribute('src');
-                        img.setAttribute('src', '');
+                });
+            });
+
+            // 2. 安全加载前3张图片
+            const eagerImages = document.querySelectorAll('.clue-image[loading="eager"]');
+            eagerImages.forEach(img => {
+                if (!img.complete) {
+                    const src = img.getAttribute('src');
+                    img.setAttribute('src', '');
+                    setTimeout(() => {
                         img.setAttribute('src', src);
-                    }
+                    }, 100);
                 }
-            };
+            });
 
-            // 2. 页面加载完成后立即执行
-            loadPriorityImages();
-
-            // 3. 滚动预加载 - 提前加载即将进入视口的图片
-            let preloadObserver;
+            // 3. 智能懒加载实现（替代原生lazy）
+            let lazyLoadObserver;
             if ('IntersectionObserver' in window) {
-                preloadObserver = new IntersectionObserver((entries) => {
+                lazyLoadObserver = new IntersectionObserver((entries) => {
                     entries.forEach(entry => {
-                        if (entry.isIntersecting || entry.intersectionRatio > 0) {
+                        if (entry.isIntersecting) {
                             const img = entry.target;
-                            img.loading = 'eager';
-                            preloadObserver.unobserve(img);
+                            const src = img.getAttribute('data-src');
+                            
+                            if (src) {
+                                // 延迟加载，避免网络拥堵
+                                setTimeout(() => {
+                                    img.setAttribute('src', src);
+                                    img.removeAttribute('data-src');
+                                }, 100);
+                            }
+                            
+                            lazyLoadObserver.unobserve(img);
                         }
                     });
                 }, {
-                    rootMargin: '500px 0px', // 提前500px开始加载
+                    rootMargin: '300px 0px', // 提前300px加载
                     threshold: 0.01
                 });
 
-                // 观察所有lazy加载的图片
-                document.querySelectorAll('.clue-image[loading="lazy"]').forEach(img => {
-                    preloadObserver.observe(img);
+                // 观察所有延迟加载的图片
+                document.querySelectorAll('.clue-image[data-src]').forEach(img => {
+                    lazyLoadObserver.observe(img);
+                });
+            } else {
+                // 降级方案：不支持IntersectionObserver时直接加载所有图片
+                document.querySelectorAll('.clue-image[data-src]').forEach(img => {
+                    const src = img.getAttribute('data-src');
+                    img.setAttribute('src', src);
+                    img.removeAttribute('data-src');
                 });
             }
 
-            // 4. 图片加载失败兜底处理
-            document.querySelectorAll('.clue-image').forEach(img => {
-                img.onerror = function () {
-                    this.classList.add('error');
-                    this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iIzIyMiIvPjx0ZXh0IHg9IjIwMCIgeT0iMTUwIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIyMCIgZm9udC1mYW1pbHk9IkFyaWFsIiB7IkNvbG9yIjoiIzY2NiIsIkNvbG9yLURvcGFjayI6IiM0NDQiLCJTdGFydCI6IueUteWKoOi9veS6rOi9vSJ9PC90ZXh0Pjwvc3ZnPg==';
-                    this.alt = '图片加载失败，请稍后重试';
-                };
-                
-                img.addEventListener('load', function() {
-                    this.style.opacity = 1;
+            // 4. 强制加载所有图片的备用方案（5秒后）
+            setTimeout(() => {
+                document.querySelectorAll('.clue-image[data-src]').forEach(img => {
+                    const src = img.getAttribute('data-src');
+                    img.setAttribute('src', src);
+                    img.removeAttribute('data-src');
+                    img.classList.remove('loading');
                 });
-            });
+            }, 5000);
 
             // 5. 滚动时头部样式动态调整
             window.addEventListener('scroll', () => {
