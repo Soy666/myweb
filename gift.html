@@ -133,7 +133,7 @@
             padding: 1rem;
         }
 
-        /* 图片样式优化 - 极速加载+无黑框+硬件加速 */
+        /* 图片加载优化 - 核心改造部分 */
         .clue-image {
             width: 100%;
             max-width: 700px;
@@ -141,17 +141,29 @@
             border-radius: 0.75rem;
             border: 1px solid #4b5563;
             margin: 0 auto 1rem;
-            transition: all 0.3s ease;
-            opacity: 1 !important;
+            transition: all 0.3s ease, opacity 0.5s ease-in-out;
+            opacity: 0.2; /* 初始半透明 */
             transform: translateZ(0); /* 硬件加速 */
             backface-visibility: hidden;
-            animation: none !important;
             display: block;
-            background: transparent; /* 去掉黑背景，无占位 */
+            background: #1a1a1a url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Cpath d='M15 4a11 11 0 1 0 0 22 11 11 0 0 0 0-22zm0 20a9 9 0 1 1 0-18 9 9 0 0 1 0 18z' fill='%23333'/%3E%3Cpath d='M15 7a1 1 0 0 0-1 1v8h-5a1 1 0 0 0 0 2h7a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1z' fill='%23666'%3E%3CanimateTransform attributeName='transform' type='rotate' from='0 15 15' to='360 15 15' dur='1s' repeatCount='indefinite'/%3E%3C/path%3E%3C/svg%3E") center no-repeat;
+            min-height: 100px;
             object-fit: contain;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-            min-height: 0; /* 去掉最小高度，消除等待占位 */
             image-rendering: auto;
+        }
+
+        /* 图片加载完成样式 */
+        .clue-image.loaded {
+            opacity: 1;
+            background: none;
+        }
+
+        /* 图片加载失败样式 */
+        .clue-image.error {
+            opacity: 1;
+            background: #222 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M20 5a15 15 0 1 0 0 30 15 15 0 0 0 0-30zm0 28a13 13 0 1 1 0-26 13 13 0 0 1 0 26z' fill='%23444'/%3E%3Cpath d='M22 11l-8 14-6-6 1.5-1.5L14 21l6.5-11.5L22 11z' fill='%23ff4444'/%3E%3C/svg%3E") center no-repeat;
+            border: 1px dashed #666 !important;
         }
 
         .clue-image.larger {
@@ -162,25 +174,6 @@
             transform: translateZ(0) scale(1.01);
             box-shadow: 0 0 20px rgba(107, 114, 128, 0.4);
             border-color: #6b7280;
-        }
-
-        .clue-image.error {
-            opacity: 1;
-            background: #222;
-            color: #666;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            aspect-ratio: 4/3;
-            border-radius: 0.75rem;
-            border: 1px dashed #6b7280;
-            content: attr(alt);
-        }
-
-        /* 去掉加载中动画，避免等待感 */
-        .clue-image.loading {
-            background: transparent;
         }
 
         /* 主容器适配更多内容 */
@@ -246,54 +239,94 @@
                 <!-- 首屏核心图片 - 最高优先级 -->
                 <img src="./assets/image/封面1.png" 
                      alt="嘲哳线索1 - 万俟循绘制封面" 
-                     class="clue-image larger">
+                     class="clue-image larger"
+                     loading="eager"
+                     width="800" height="600"
+                     onload="this.classList.add('loaded')"
+                     onerror='this.classList.add("error"); this.alt="图片加载失败：万俟循绘制封面"'>
 
                 <p id="wan1">由画师「万俟循」贡献的封面图</p>
 
-                <!-- 所有图片直接用src，去掉data-src和loading，秒加载 -->
+                <!-- 其他图片使用懒加载 -->
                 <img src="./assets/image/封面3.png"
                      alt="嘲哳线索2 - 黑米绘制封面"
-                     class="clue-image">
+                     class="clue-image"
+                     loading="lazy"
+                     width="700" height="500"
+                     onload="this.classList.add('loaded')"
+                     onerror='this.classList.add("error"); this.alt="图片加载失败：黑米绘制封面3"'>
                 <p class="image-desc">由画师「黑米」贡献的封面图</p>
 
                 <img src="./assets/image/封面2.png"
                      alt="嘲哳线索3 - 黑米绘制封面"
-                     class="clue-image">
+                     class="clue-image"
+                     loading="lazy"
+                     width="700" height="500"
+                     onload="this.classList.add('loaded')"
+                     onerror='this.classList.add("error"); this.alt="图片加载失败：黑米绘制封面2"'>
                 <p class="image-desc">由画师「黑米」贡献的封面图</p>
 
                 <img src="./assets/image/魔芋.png"
                      alt="嘲哳线索4 - 魔芋绘制场景图"
-                     class="clue-image">
+                     class="clue-image"
+                     loading="lazy"
+                     width="700" height="500"
+                     onload="this.classList.add('loaded')"
+                     onerror='this.classList.add("error"); this.alt="图片加载失败：魔芋绘制场景图"'>
                 <p class="image-desc">由画师「魔芋」贡献的场景图</p>
 
                 <img src="./assets/image/小小.png"
                      alt="嘲哳线索5 - 小小绘制宣传图"
-                     class="clue-image">
+                     class="clue-image"
+                     loading="lazy"
+                     width="700" height="500"
+                     onload="this.classList.add('loaded')"
+                     onerror='this.classList.add("error"); this.alt="图片加载失败：小小绘制宣传图"'>
                 <p class="image-desc">由画师「小小」贡献的宣传图</p>
 
                 <img src="./assets/image/黑米宣传图1.png"
                      alt="嘲哳线索6 - 黑米绘制宣传图"
-                     class="clue-image">
+                     class="clue-image"
+                     loading="lazy"
+                     width="700" height="500"
+                     onload="this.classList.add('loaded')"
+                     onerror='this.classList.add("error"); this.alt="图片加载失败：黑米绘制宣传图1"'>
                 <p class="image-desc">由画师「黑米」贡献的宣传图</p>
 
                 <img src="./assets/image/百里无相.png"
                      alt="嘲哳线索7 - 百里无相绘制宣传图"
-                     class="clue-image">
+                     class="clue-image"
+                     loading="lazy"
+                     width="700" height="500"
+                     onload="this.classList.add('loaded')"
+                     onerror='this.classList.add("error"); this.alt="图片加载失败：百里无相绘制宣传图"'>
                 <p class="image-desc">由画师「百里无相」贡献的宣传图</p>
 
                 <img src="./assets/image/百里无相2.png"
                      alt="嘲哳线索8 - 百里无相绘制宣传图"
-                     class="clue-image">
+                     class="clue-image"
+                     loading="lazy"
+                     width="700" height="500"
+                     onload="this.classList.add('loaded')"
+                     onerror='this.classList.add("error"); this.alt="图片加载失败：百里无相绘制宣传图2"'>
                 <p class="image-desc">由画师「百里无相」贡献的宣传图</p>
 
                 <img src="./assets/image/工作室logo绘制现场.jpg"
                      alt="嘲哳线索9 - 皮蛋绘制LOGO现场"
-                     class="clue-image">
+                     class="clue-image"
+                     loading="lazy"
+                     width="700" height="500"
+                     onload="this.classList.add('loaded')"
+                     onerror='this.classList.add("error"); this.alt="图片加载失败：皮蛋绘制LOGO现场"'>
                 <p class="image-desc">由画师「皮蛋」所提供的工作室LOGO绘制现场</p>
 
                 <img src="./assets/image/logo.png"
                      alt="嘲哳线索10 - 正式版LOGO"
-                     class="clue-image">
+                     class="clue-image"
+                     loading="lazy"
+                     width="700" height="500"
+                     onload="this.classList.add('loaded')"
+                     onerror='this.classList.add("error"); this.alt="图片加载失败：正式版LOGO"'>
                 <p class="image-desc">正式版LOGO（小小）</p>
             </div>
 
@@ -311,22 +344,42 @@
     </div>
 
     <script>
-        // 极简极速加载 + 滚动优化
+        // 图片加载优化脚本（参考第二个页面的优化方案）
         document.addEventListener('DOMContentLoaded', function() {
-            // 1. 图片加载失败重试（仅1次，减少等待）
+            // 1. 处理所有图片
             const allImages = document.querySelectorAll('.clue-image');
+            
+            // 2. 对不支持原生懒加载的浏览器做兼容
+            if (!('loading' in HTMLImageElement.prototype)) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const img = entry.target;
+                            img.src = img.src; // 触发加载
+                            observer.unobserve(img);
+                        }
+                    });
+                }, { rootMargin: '200px 0px' });
+                
+                allImages.forEach(img => {
+                    if (img.loading !== 'eager') {
+                        observer.observe(img);
+                    }
+                });
+            }
+            
+            // 3. 图片加载失败重试机制（最多1次）
             allImages.forEach(img => {
                 img.addEventListener('error', function() {
-                    this.classList.add('error');
-                    const retryCount = parseInt(this.dataset.retryCount || 0);
-                    if (retryCount < 1) {
-                        this.dataset.retryCount = retryCount + 1;
-                        this.setAttribute('src', this.src + '?t=' + Date.now());
+                    if (!this.dataset.retried) {
+                        this.dataset.retried = 'true';
+                        // 加时间戳避免缓存导致重试无效
+                        this.src = this.src + '?t=' + Date.now();
                     }
                 });
             });
 
-            // 2. 滚动优化（原有交互不变）
+            // 4. 滚动优化（原有交互不变）
             let lastScrollPos = 0;
             window.addEventListener('scroll', () => {
                 const scrollTop = window.scrollY;
