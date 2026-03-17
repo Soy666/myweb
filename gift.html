@@ -5,19 +5,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>嘲哳 Project - 线索详情</title>
-    <!-- 缓存策略：最大化缓存，减少重复请求 -->
-    <meta http-equiv="Cache-Control" content="public, max-age=31536000, immutable">
+    <!-- 缓存策略：合理缓存，兼顾更新 -->
+    <meta http-equiv="Cache-Control" content="public, max-age=86400">
     <meta http-equiv="Pragma" content="cache">
-    <meta http-equiv="Expires" content="31536000">
+    <meta http-equiv="Expires" content="86400">
     
-    <!-- 关键优化：预加载+预连接+DNS预解析 -->
+    <!-- 性能优化：预连接+DNS预解析 -->
     <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
     <link rel="dns-prefetch" href="./assets/image/">
     <!-- 首图预加载（最高优先级） -->
     <link rel="preload" as="image" href="./assets/image/封面1.png" fetchpriority="high">
-    <!-- 预加载接下来大概率会看的2张图 -->
-    <link rel="preload" as="image" href="./assets/image/封面3.png" fetchpriority="low">
-    <link rel="preload" as="image" href="./assets/image/封面2.png" fetchpriority="low">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" type="image/x-icon" href="./favicon.ico">
@@ -103,6 +100,7 @@
             align-items: center;
             background: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), transparent);
             transform: translateZ(0);
+            transition: background 0.3s ease; /* 平滑过渡 */
         }
 
         .btn-back {
@@ -132,7 +130,7 @@
             padding: 1rem;
         }
 
-        /* 核心优化：图片加载样式（极简+无冗余） */
+        /* 图片样式优化 */
         .clue-image {
             width: 100%;
             max-width: 700px;
@@ -140,30 +138,26 @@
             border-radius: 0.75rem;
             border: 1px solid #4b5563;
             margin: 0 auto 1rem;
-            /* 移除冗余过渡，只保留必要的 */
-            transition: opacity 0.2s ease-in-out;
-            opacity: 0; /* 初始透明，加载完成立即显示 */
-            transform: translateZ(0); /* 硬件加速渲染 */
+            transition: opacity 0.2s ease-in-out, transform 0.2s ease;
+            opacity: 0;
+            transform: translateZ(0);
             backface-visibility: hidden;
             display: block;
             object-fit: contain;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-            /* 关键：去掉加载中背景（减少渲染开销） */
-            background: transparent;
-            min-height: 0; /* 去掉最小高度，减少布局计算 */
+            cursor: zoom-in; /* 提示可点击放大 */
         }
 
-        /* 加载完成立即显示 */
         .clue-image.loaded {
             opacity: 1;
         }
 
-        /* 加载失败样式（极简） */
         .clue-image.error {
             opacity: 1;
             background: #222 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M20 5a15 15 0 1 0 0 30 15 15 0 0 0 0-30zm0 28a13 13 0 1 1 0-26 13 13 0 0 1 0 26z' fill='%23444'/%3E%3Cpath d='M22 11l-8 14-6-6 1.5-1.5L14 21l6.5-11.5L22 11z' fill='%23ff4444'/%3E%3C/svg%3E") center no-repeat;
             border: 1px dashed #666 !important;
             min-height: 200px;
+            cursor: default;
         }
 
         .clue-image.larger {
@@ -211,6 +205,48 @@
             letter-spacing: 0.2em;
             margin-top: 1rem;
         }
+
+        /* 图片预览弹窗 */
+        .image-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 100;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .modal-content {
+            max-width: 95%;
+            max-height: 90vh;
+        }
+
+        .modal-image {
+            max-width: 100%;
+            max-height: 90vh;
+            border-radius: 0.5rem;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            width: 3rem;
+            height: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
     </style>
 </head>
 
@@ -239,7 +275,7 @@
 
                 <p id="wan1">由画师「万俟循」贡献的封面图</p>
 
-                <!-- 其他图片：智能懒加载（提前200px加载） -->
+                <!-- 其他图片：智能懒加载 -->
                 <img src="./assets/image/封面3.png"
                      alt="嘲哳线索2 - 黑米绘制封面"
                      class="clue-image"
@@ -303,7 +339,6 @@
                      onerror='this.classList.add("error"); this.alt="图片加载失败：百里无相绘制宣传图2"'>
                 <p class="image-desc">由画师「百里无相」贡献的宣传图</p>
 
-
                 <img src="./assets/image/A手绘1.png"
                      alt="嘲哳线索9 - attendboth绘制宣传图"
                      class="clue-image"
@@ -313,9 +348,7 @@
                      onerror='this.classList.add("error"); this.alt="图片加载失败:A手绘1"'>
                 <p class="image-desc">由画师「attendboth」贡献的宣传图</p>
 
-
-
-                 <img src="./assets/image/A手绘2.png"
+                <img src="./assets/image/A手绘2.png"
                      alt="嘲哳线索11 - attendboth绘制宣传图"
                      class="clue-image"
                      loading="lazy"
@@ -323,9 +356,6 @@
                      onload="this.classList.add('loaded')"
                      onerror='this.classList.add("error"); this.alt="图片加载失败:A手绘2"'>
                 <p class="image-desc">由画师「attendboth」贡献的宣传图2</p>
-
-
-
 
                 <img src="./assets/image/工作室logo绘制现场.jpg"
                      alt="嘲哳logo1 - 皮蛋绘制LOGO现场"
@@ -359,19 +389,30 @@
         </div>
     </div>
 
+    <!-- 图片预览弹窗 -->
+    <div class="image-modal" id="imageModal">
+        <button class="close-modal" onclick="closeImageModal()">&times;</button>
+        <div class="modal-content">
+            <img src="" alt="预览图片" class="modal-image" id="modalImage">
+        </div>
+    </div>
+
     <script>
-        // 极速加载核心脚本
+        // 全局变量
+        const imageModal = document.getElementById('imageModal');
+        const modalImage = document.getElementById('modalImage');
+        
+        // DOM加载完成后执行
         document.addEventListener('DOMContentLoaded', function() {
             const allImages = document.querySelectorAll('.clue-image');
             
-            // 1. 智能懒加载（比原生更高效，提前200px加载）
+            // 1. 智能懒加载（使用IntersectionObserver）
             if ('IntersectionObserver' in window) {
                 const imgObserver = new IntersectionObserver((entries) => {
                     entries.forEach(entry => {
                         if (entry.isIntersecting) {
                             const img = entry.target;
-                            // 立即加载，无延迟
-                            img.src = img.src;
+                            // 对于原生lazy加载的图片，浏览器会自动处理，无需额外操作
                             imgObserver.unobserve(img);
                         }
                     });
@@ -380,41 +421,47 @@
                     threshold: 0.01 
                 });
                 
+                // 只观察非立即加载的图片
                 allImages.forEach(img => {
-                    if (img.loading !== 'eager') {
+                    if (img.loading === 'lazy') {
                         imgObserver.observe(img);
                     }
                 });
-            } else {
-                // 降级方案：滚动时立即加载
-                window.addEventListener('scroll', () => {
-                    allImages.forEach(img => {
-                        if (img.getBoundingClientRect().top < window.innerHeight + 200) {
-                            img.src = img.src;
-                        }
-                    });
-                }, { passive: true });
             }
             
-            // 2. 失败重试（极简逻辑，无冗余）
+            // 2. 图片失败重试逻辑（最多重试2次）
             allImages.forEach(img => {
                 img.addEventListener('error', function() {
-                    if (!this.dataset.retried) {
-                        this.dataset.retried = 'true';
-                        // 强制刷新缓存，立即重试
-                        this.src = this.src.split('?')[0] + '?t=' + Date.now();
+                    // 标记错误状态
+                    this.classList.add('error');
+                    
+                    // 获取当前重试次数
+                    const retryCount = parseInt(this.dataset.retryCount || '0');
+                    
+                    // 最多重试2次
+                    if (retryCount < 2) {
+                        this.dataset.retryCount = retryCount + 1;
+                        // 添加时间戳防止缓存
+                        const originalSrc = this.src.split('?')[0];
+                        this.src = `${originalSrc}?t=${Date.now()}`;
+                    } else {
+                        // 重试失败，更新alt提示
+                        this.alt = `【加载失败】${this.alt}`;
                     }
                 });
             });
 
-            // 3. 滚动优化（减少计算开销）
+            // 3. 滚动优化 - 头部背景渐变
             let lastScrollPos = 0;
             let ticking = false;
+            const header = document.querySelector('.header');
+            
             window.addEventListener('scroll', () => {
                 if (!ticking) {
                     requestAnimationFrame(() => {
                         const scrollTop = window.scrollY;
-                        const header = document.querySelector('.header');
+                        
+                        // 滚动距离超过50px时加深背景
                         if (Math.abs(scrollTop - lastScrollPos) > 10) {
                             header.style.background = scrollTop > 50 
                                 ? 'linear-gradient(to bottom, rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.7))' 
@@ -427,12 +474,47 @@
                 }
             }, { passive: true });
 
-            // 4. 强制触发首图加载（防止浏览器延迟）
-            const firstImg = document.querySelector('.clue-image.larger');
-            if (firstImg) {
-                firstImg.src = firstImg.src;
-            }
+            // 4. 图片点击放大功能
+            allImages.forEach(img => {
+                // 错误图片不添加点击事件
+                if (!img.classList.contains('error')) {
+                    img.addEventListener('click', function() {
+                        if (this.classList.contains('error')) return;
+                        openImageModal(this.src, this.alt);
+                    });
+                }
+            });
+
+            // 5. 点击模态框空白处关闭
+            imageModal.addEventListener('click', function(e) {
+                if (e.target === imageModal) {
+                    closeImageModal();
+                }
+            });
+
+            // 6. ESC键关闭模态框
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && imageModal.style.display === 'flex') {
+                    closeImageModal();
+                }
+            });
         });
+
+        // 打开图片预览模态框
+        function openImageModal(src, alt) {
+            modalImage.src = src;
+            modalImage.alt = alt;
+            imageModal.style.display = 'flex';
+            // 防止页面滚动
+            document.body.style.overflow = 'hidden';
+        }
+
+        // 关闭图片预览模态框
+        function closeImageModal() {
+            imageModal.style.display = 'none';
+            // 恢复页面滚动
+            document.body.style.overflow = '';
+        }
     </script>
 </body>
 </html>
