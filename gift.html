@@ -246,6 +246,24 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: all 0.2s ease;
+        }
+        
+        .close-modal:hover {
+            color: #ff4444;
+            transform: scale(1.1);
+        }
+        
+        /* 加载动画 */
+        .clue-image:not(.loaded):not(.error) {
+            background: #222 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 12a9 9 0 1 1-6.219-8.56'/%3E%3C/svg%3E") center no-repeat;
+            min-height: 200px;
+            animation: spin 1.5s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -331,13 +349,13 @@
                 <p class="image-desc">由画师「百里无相」贡献的宣传图</p>
 
                 <img src="./assets/image/百里无相2.png"
-                     alt="嘲哳线索8 - 百里无相绘制宣传图"
+                     alt="嘲哳线索8 - 百里无相绘制宣传图2"
                      class="clue-image"
                      loading="lazy"
                      width="700" height="500"
                      onload="this.classList.add('loaded')"
                      onerror='this.classList.add("error"); this.alt="图片加载失败：百里无相绘制宣传图2"'>
-                <p class="image-desc">由画师「百里无相」贡献的宣传图</p>
+                <p class="image-desc">由画师「百里无相」贡献的宣传图2</p>
 
                 <img src="./assets/image/A手绘1.png"
                      alt="嘲哳线索9 - attendboth绘制宣传图"
@@ -349,13 +367,69 @@
                 <p class="image-desc">由画师「attendboth」贡献的宣传图</p>
 
                 <img src="./assets/image/A手绘2.png"
-                     alt="嘲哳线索11 - attendboth绘制宣传图"
+                     alt="嘲哳线索10 - attendboth绘制宣传图2"
                      class="clue-image"
                      loading="lazy"
                      width="700" height="500"
                      onload="this.classList.add('loaded')"
                      onerror='this.classList.add("error"); this.alt="图片加载失败:A手绘2"'>
                 <p class="image-desc">由画师「attendboth」贡献的宣传图2</p>
+
+                <img src="./assets/image/周.png"
+                     alt="嘲哳团建 - 团建图1"
+                     class="clue-image"
+                     loading="lazy"
+                     width="700" height="500"
+                     onload="this.classList.add('loaded')"
+                     onerror='this.classList.add("error"); this.alt="图片加载失败：周绘制团建图"'>
+                <p class="image-desc">由画师「周」贡献的赛博团建图<br>
+                画师们的一次活动···</p>
+
+                <img src="./assets/image/魔芋团建图.png"
+                     alt="嘲哳团建 - 魔芋团建"
+                     class="clue-image"
+                     loading="lazy"
+                     width="700" height="500"
+                     onload="this.classList.add('loaded')"
+                     onerror='this.classList.add("error"); this.alt="图片加载失败：魔芋绘制团建图"'>
+                <p class="image-desc">由画师「魔芋」贡献的赛博团建图</p>
+
+                <img src="./assets/image/百里无相团建图.png"
+                     alt="嘲哳团建 - 百里无相团建"
+                     class="clue-image"
+                     loading="lazy"
+                     width="700" height="500"
+                     onload="this.classList.add('loaded')"
+                     onerror='this.classList.add("error"); this.alt="图片加载失败：百里无相绘制团建图"'>
+                <p class="image-desc">由画师「百里无相」贡献的赛博团建图</p>
+
+                <img src="./assets/image/超级鸟人.png"
+                     alt="嘲哳团建 - 超级鸟人团建"
+                     class="clue-image"
+                     loading="lazy"
+                     width="700" height="500"
+                     onload="this.classList.add('loaded')"
+                     onerror='this.classList.add("error"); this.alt="图片加载失败：超级鸟人绘制团建图"'>
+                <p class="image-desc">由画师「超级鸟人」贡献的赛博团建图</p>
+
+                <img src="./assets/image/鱼头团建图.png"
+                     alt="嘲哳团建 - 鱼头团建"
+                     class="clue-image"
+                     loading="lazy"
+                     width="700" height="500"
+                     onload="this.classList.add('loaded')"
+                     onerror='this.classList.add("error"); this.alt="图片加载失败：鱼头绘制团建图"'>
+                <p class="image-desc">由画师「鱼头」贡献的赛博团建图</p>
+
+                <img src="./assets/image/火烧云团建图.png"
+                     alt="嘲哳团建 - 火烧云团建"
+                     class="clue-image"
+                     loading="lazy"
+                     width="700" height="500"
+                     onload="this.classList.add('loaded')"
+                     onerror='this.classList.add("error"); this.alt="图片加载失败：火烧云绘制团建图"'>
+                <p class="image-desc">由画师「火烧云」贡献的赛博团建图<br>
+                时间比较紧就ai上色了,致歉···内容都是自己画的</p>
 
                 <img src="./assets/image/工作室logo绘制现场.jpg"
                      alt="嘲哳logo1 - 皮蛋绘制LOGO现场"
@@ -441,6 +515,8 @@
                     // 最多重试2次
                     if (retryCount < 2) {
                         this.dataset.retryCount = retryCount + 1;
+                        // 移除error类，重新加载
+                        this.classList.remove('error');
                         // 添加时间戳防止缓存
                         const originalSrc = this.src.split('?')[0];
                         this.src = `${originalSrc}?t=${Date.now()}`;
@@ -476,13 +552,10 @@
 
             // 4. 图片点击放大功能
             allImages.forEach(img => {
-                // 错误图片不添加点击事件
-                if (!img.classList.contains('error')) {
-                    img.addEventListener('click', function() {
-                        if (this.classList.contains('error')) return;
-                        openImageModal(this.src, this.alt);
-                    });
-                }
+                img.addEventListener('click', function() {
+                    if (this.classList.contains('error')) return;
+                    openImageModal(this.src, this.alt);
+                });
             });
 
             // 5. 点击模态框空白处关闭
@@ -498,6 +571,12 @@
                     closeImageModal();
                 }
             });
+            
+            // 7. 首图强制加载（兼容老旧浏览器）
+            const firstImg = document.querySelector('.clue-image[loading="eager"]');
+            if (firstImg && !firstImg.complete) {
+                firstImg.src = firstImg.src; // 强制触发加载
+            }
         });
 
         // 打开图片预览模态框
@@ -507,6 +586,8 @@
             imageModal.style.display = 'flex';
             // 防止页面滚动
             document.body.style.overflow = 'hidden';
+            // 防止触摸滚动
+            document.body.style.touchAction = 'none';
         }
 
         // 关闭图片预览模态框
@@ -514,7 +595,15 @@
             imageModal.style.display = 'none';
             // 恢复页面滚动
             document.body.style.overflow = '';
+            document.body.style.touchAction = 'manipulation';
+            // 清空图片地址，释放内存
+            modalImage.src = '';
         }
+        
+        // 页面卸载时清理资源
+        window.addEventListener('beforeunload', function() {
+            closeImageModal();
+        });
     </script>
 </body>
 </html>
