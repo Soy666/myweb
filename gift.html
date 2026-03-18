@@ -5,16 +5,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>嘲哳 Project - 线索详情</title>
-    <!-- 缓存策略：合理缓存，兼顾更新 -->
-    <meta http-equiv="Cache-Control" content="public, max-age=86400">
+    <!-- 缓存策略：电脑端长缓存+版本控制 -->
+    <meta http-equiv="Cache-Control" content="public, max-age=86400, must-revalidate">
     <meta http-equiv="Pragma" content="cache">
     <meta http-equiv="Expires" content="86400">
     
-    <!-- 性能优化：预连接+DNS预解析 -->
+    <!-- 性能优化：预连接+DNS预解析+关键资源预加载 -->
     <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
     <link rel="dns-prefetch" href="./assets/image/">
-    <!-- 首图预加载（最高优先级） -->
-    <link rel="preload" as="image" href="./assets/image/封面1.png" fetchpriority="high">
+    <link rel="dns-prefetch" href="./assets/video/">
+    <!-- 首图预加载（电脑端高优先级） -->
+    <link rel="preload" as="image" href="./assets/image/封面1.png" fetchpriority="high" media="screen and (min-width: 768px)">
+    <!-- 预加载常用图标/样式 -->
+    <link rel="preload" as="font" href="https://fonts.googleapis.com/css2?family=PingFang+SC:wght@400;700&display=swap" crossorigin>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" type="image/x-icon" href="./favicon.ico">
@@ -34,6 +37,8 @@
             font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
             scroll-behavior: smooth;
             user-select: none;
+            /* 电脑端开启硬件加速 */
+            transform: translateZ(0);
         }
 
         /* 按钮样式 */
@@ -66,7 +71,7 @@
         }
 
         /* 文本样式 */
-        #wan1, .image-desc {
+        #wan1, .image-desc, .video-desc {
             text-align: center;
             color: #9ca3af;
             letter-spacing: 0.1em;
@@ -78,7 +83,7 @@
             margin-bottom: 1rem;
         }
         
-        .image-desc {
+        .image-desc, .video-desc {
             font-size: 1rem;
             margin-bottom: 2rem;
         }
@@ -88,19 +93,21 @@
             animation: none !important;
         }
 
-        /* 头部样式 */
+        /* 头部样式 - 电脑端优化 */
         .header {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             z-index: 50;
-            padding: 0.625rem 0.75rem;
+            padding: 0.625rem 2rem; /* 电脑端加宽内边距 */
             display: flex;
             align-items: center;
             background: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), transparent);
             transform: translateZ(0);
-            transition: background 0.3s ease; /* 平滑过渡 */
+            transition: background 0.3s ease;
+            /* 电脑端防卡顿 */
+            will-change: background;
         }
 
         .btn-back {
@@ -123,29 +130,43 @@
             background-color: rgba(75, 85, 99, 0.2);
         }
 
-        /* 图片容器 */
-        .image-container {
-            max-width: 90%;
+        /* 媒体容器 - 整合图片/视频 */
+        .media-container {
+            max-width: 80%; /* 电脑端缩小容器宽度，居中更美观 */
             margin: 0 auto;
             padding: 1rem;
+            /* 电脑端网格布局，提升多图展示体验 */
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
         }
 
-        /* 图片样式优化 */
+        /* 图片样式优化 - 电脑端重点优化 */
         .clue-image {
             width: 100%;
-            max-width: 700px;
+            max-width: 800px; /* 电脑端增大最大宽度 */
             height: auto;
             border-radius: 0.75rem;
             border: 1px solid #4b5563;
             margin: 0 auto 1rem;
-            transition: opacity 0.2s ease-in-out, transform 0.2s ease;
+            transition: opacity 0.2s ease-in-out, transform 0.2s ease, box-shadow 0.3s ease;
             opacity: 0;
             transform: translateZ(0);
             backface-visibility: hidden;
             display: block;
             object-fit: contain;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-            cursor: zoom-in; /* 提示可点击放大 */
+            cursor: zoom-in;
+            /* 电脑端图片平滑渲染 */
+            image-rendering: optimizeQuality;
+        }
+
+        /* 电脑端图片悬停效果 */
+        @media (min-width: 768px) {
+            .clue-image:hover {
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+                transform: translateY(-4px);
+            }
         }
 
         .clue-image.loaded {
@@ -156,114 +177,164 @@
             opacity: 1;
             background: #222 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M20 5a15 15 0 1 0 0 30 15 15 0 0 0 0-30zm0 28a13 13 0 1 1 0-26 13 13 0 0 1 0 26z' fill='%23444'/%3E%3Cpath d='M22 11l-8 14-6-6 1.5-1.5L14 21l6.5-11.5L22 11z' fill='%23ff4444'/%3E%3C/svg%3E") center no-repeat;
             border: 1px dashed #666 !important;
-            min-height: 200px;
+            min-height: 300px; /* 电脑端增大错误占位高度 */
             cursor: default;
         }
 
         .clue-image.larger {
-            max-width: 800px;
+            max-width: 900px; /* 电脑端增大首图宽度 */
         }
 
-        /* 主容器 */
+        /* 视频样式 - 电脑端优化 */
+        .clue-video {
+            width: 100%;
+            max-width: 800px;
+            height: auto;
+            border-radius: 0.75rem;
+            border: 1px solid #4b5563;
+            margin: 0 auto 1rem;
+            opacity: 0;
+            transition: opacity 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            /* 电脑端视频硬件加速 */
+            transform: translateZ(0);
+        }
+
+        .clue-video.loaded {
+            opacity: 1;
+        }
+
+        .clue-video:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 主容器 - 电脑端优化 */
         .main-container {
             min-height: 100vh;
             width: 100%;
             display: flex;
             justify-content: center;
             align-items: flex-start;
-            padding: 5rem 1rem 3rem;
+            padding: 6rem 2rem 4rem; /* 电脑端加大上下内边距 */
             overflow-x: hidden;
+            /* 电脑端平滑滚动 */
+            scroll-behavior: smooth;
         }
 
         .card {
-            max-width: 800px;
+            max-width: 900px; /* 电脑端增大卡片宽度 */
             width: 100%;
             color: #d1d5db;
             border: 1px solid #4b5563;
             border-radius: 1rem;
-            padding: 2rem 1.5rem;
+            padding: 3rem 2rem; /* 电脑端加大内边距 */
             background-color: rgba(17, 24, 39, 0.9);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
             transform: translateZ(0);
+            /* 电脑端卡片阴影优化 */
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
         }
 
         .page-title {
-            font-size: 1.5rem;
+            font-size: 2rem; /* 电脑端增大标题字体 */
             text-align: center;
             color: #ffffff;
             font-weight: 400;
             letter-spacing: 0.15em;
-            margin-bottom: 2.5rem;
-            padding-bottom: 1rem;
+            margin-bottom: 3rem; /* 电脑端加大间距 */
+            padding-bottom: 1.5rem;
             border-bottom: 1px solid rgba(75, 85, 99, 0.3);
         }
 
         .footer-text {
             text-align: center;
-            font-size: 0.75rem;
+            font-size: 0.875rem;
             color: #6b7280;
             letter-spacing: 0.2em;
-            margin-top: 1rem;
+            margin-top: 2rem;
         }
 
-        /* 图片预览弹窗 */
+        /* 图片预览弹窗 - 电脑端优化 */
         .image-modal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.95);
+            background: rgba(0, 0, 0, 0.98); /* 电脑端更暗的遮罩 */
             z-index: 100;
             display: none;
             justify-content: center;
             align-items: center;
             padding: 2rem;
+            /* 电脑端弹窗硬件加速 */
+            transform: translateZ(0);
         }
 
         .modal-content {
-            max-width: 95%;
-            max-height: 90vh;
+            max-width: 90%;
+            max-height: 95vh; /* 电脑端增大预览高度 */
+            /* 电脑端预览动画 */
+            transition: transform 0.3s ease;
         }
 
         .modal-image {
             max-width: 100%;
-            max-height: 90vh;
-            border-radius: 0.5rem;
+            max-height: 95vh;
+            border-radius: 0.75rem;
+            /* 电脑端预览图平滑渲染 */
+            image-rendering: optimizeQuality;
         }
 
         .close-modal {
             position: absolute;
-            top: 1rem;
-            right: 1rem;
+            top: 2rem; /* 电脑端上移关闭按钮 */
+            right: 2rem; /* 电脑端右移关闭按钮 */
             color: white;
-            font-size: 2rem;
+            font-size: 2.5rem; /* 电脑端增大关闭按钮 */
             cursor: pointer;
             background: transparent;
             border: none;
-            width: 3rem;
-            height: 3rem;
+            width: 4rem; /* 电脑端增大点击区域 */
+            height: 4rem;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.2s ease;
+            /* 电脑端关闭按钮hover效果 */
+            border-radius: 50%;
         }
         
         .close-modal:hover {
             color: #ff4444;
             transform: scale(1.1);
+            background-color: rgba(255, 255, 255, 0.1);
         }
         
         /* 加载动画 */
-        .clue-image:not(.loaded):not(.error) {
+        .clue-image:not(.loaded):not(.error),
+        .clue-video:not(.loaded) {
             background: #222 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 12a9 9 0 1 1-6.219-8.56'/%3E%3C/svg%3E") center no-repeat;
-            min-height: 200px;
+            min-height: 300px; /* 电脑端增大加载占位高度 */
             animation: spin 1.5s linear infinite;
         }
         
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+
+        /* 响应式调整 - 电脑端专属 */
+        @media (min-width: 1200px) {
+            .media-container {
+                max-width: 70%;
+            }
+            .card {
+                max-width: 1000px;
+            }
+            .clue-image.larger {
+                max-width: 1000px;
+            }
         }
     </style>
 </head>
@@ -281,7 +352,8 @@
                 嘲哳的线索
             </h2>
 
-            <div class="image-container">
+            <!-- 整合图片/视频容器 -->
+            <div class="media-container">
                 <!-- 首图：最高优先级 + 立即加载 -->
                 <img src="./assets/image/封面1.png" 
                      alt="嘲哳线索1 - 万俟循绘制封面" 
@@ -290,10 +362,9 @@
                      width="800" height="600"
                      onload="this.classList.add('loaded')"
                      onerror='this.classList.add("error"); this.alt="图片加载失败：万俟循绘制封面"'>
-
                 <p id="wan1">由画师「万俟循」贡献的封面图</p>
 
-                <!-- 其他图片：智能懒加载 -->
+                <!-- 其他图片：智能懒加载（电脑端优化阈值） -->
                 <img src="./assets/image/封面3.png"
                      alt="嘲哳线索2 - 黑米绘制封面"
                      class="clue-image"
@@ -319,7 +390,7 @@
                      width="700" height="500"
                      onload="this.classList.add('loaded')"
                      onerror='this.classList.add("error"); this.alt="图片加载失败：魔芋绘制场景图"'>
-                <p class="image-desc">由画师「魔芋」贡献的宣传图</p>
+                <p class="image-desc">由画师「魔芋」贡献的场景图</p>
 
                 <img src="./assets/image/小小.png"
                      alt="嘲哳线索5 - 小小绘制宣传图"
@@ -339,281 +410,8 @@
                      onerror='this.classList.add("error"); this.alt="图片加载失败：黑米绘制宣传图1"'>
                 <p class="image-desc">由画师「黑米」贡献的宣传图</p>
 
-                             <img src="./assets/image/百里无相宣传图.png"
+                <img src="./assets/image/百里无相宣传图.png"
                      alt="嘲哳线索7 - 百里无相绘制宣传图"
                      class="clue-image"
                      loading="lazy"
-                     width="700" height="500"
-                     onload="this.classList.add('loaded')"
-                     onerror='this.classList.add("error"); this.alt="图片加载失败：黑米绘制宣传图1"'>
-                <p class="image-desc">由画师「百里无相」贡献的宣传图</p>
-
-
-                <img src="./assets/image/百里无相.png"
-                     alt="嘲哳线索7 - 百里无相绘制宣传图"
-                     class="clue-image"
-                     loading="lazy"
-                     width="700" height="500"
-                     onload="this.classList.add('loaded')"
-                     onerror='this.classList.add("error"); this.alt="图片加载失败：百里无相绘制宣传图"'>
-                <p class="image-desc">由画师「百里无相」贡献的宣传图</p>
-
-                <img src="./assets/image/百里无相2.png"
-                     alt="嘲哳线索8 - 百里无相绘制宣传图2"
-                     class="clue-image"
-                     loading="lazy"
-                     width="700" height="500"
-                     onload="this.classList.add('loaded')"
-                     onerror='this.classList.add("error"); this.alt="图片加载失败：百里无相绘制宣传图2"'>
-                <p class="image-desc">由画师「百里无相」贡献的宣传图</p>
-
-                <img src="./assets/image/A手绘1.png"
-                     alt="嘲哳线索9 - attendboth绘制宣传图"
-                     class="clue-image"
-                     loading="lazy"
-                     width="700" height="500"
-                     onload="this.classList.add('loaded')"
-                     onerror='this.classList.add("error"); this.alt="图片加载失败:A手绘1"'>
-                <p class="image-desc">由画师「attendboth」贡献的宣传图</p>
-
-                <img src="./assets/image/A手绘2.png"
-                     alt="嘲哳线索10 - attendboth绘制宣传图2"
-                     class="clue-image"
-                     loading="lazy"
-                     width="700" height="500"
-                     onload="this.classList.add('loaded')"
-                     onerror='this.classList.add("error"); this.alt="图片加载失败:A手绘2"'>
-                <p class="image-desc">由画师「attendboth」贡献的宣传图2</p>
-
-                <img src="./assets/image/周.png"
-                     alt="嘲哳团建 - 团建图1"
-                     class="clue-image"
-                     loading="lazy"
-                     width="700" height="500"
-                     onload="this.classList.add('loaded')"
-                     onerror='this.classList.add("error"); this.alt="图片加载失败：周绘制团建图"'>
-                <p class="image-desc">由画师「周」贡献的赛博团建图<br>
-                画师们的一次活动···</p>
-
-                <img src="./assets/image/魔芋团建图.png"
-                     alt="嘲哳团建 - 魔芋团建"
-                     class="clue-image"
-                     loading="lazy"
-                     width="700" height="500"
-                     onload="this.classList.add('loaded')"
-                     onerror='this.classList.add("error"); this.alt="图片加载失败：魔芋绘制团建图"'>
-                <p class="image-desc">由画师「魔芋」贡献的赛博团建图</p>
-
-                <img src="./assets/image/百里无相团建图.png"
-                     alt="嘲哳团建 - 百里无相团建"
-                     class="clue-image"
-                     loading="lazy"
-                     width="700" height="500"
-                     onload="this.classList.add('loaded')"
-                     onerror='this.classList.add("error"); this.alt="图片加载失败：百里无相绘制团建图"'>
-                <p class="image-desc">由画师「百里无相」贡献的赛博团建图</p>
-
-                <img src="./assets/image/超级鸟人团建图.png"
-                     alt="嘲哳团建 - 超级鸟人团建"
-                     class="clue-image"
-                     loading="lazy"
-                     width="700" height="500"
-                     onload="this.classList.add('loaded')"
-                     onerror='this.classList.add("error"); this.alt="图片加载失败：超级鸟人绘制团建图"'>
-                <p class="image-desc">由画师「超级鸟人」贡献的赛博团建图</p>
-
-                <img src="./assets/image/鱼头团建图.png"
-                     alt="嘲哳团建 - 鱼头团建"
-                     class="clue-image"
-                     loading="lazy"
-                     width="700" height="500"
-                     onload="this.classList.add('loaded')"
-                     onerror='this.classList.add("error"); this.alt="图片加载失败：鱼头绘制团建图"'>
-                <p class="image-desc">由画师「鱼头」贡献的赛博团建图</p>
-
-                <img src="./assets/image/火烧云团建图.png"
-                     alt="嘲哳团建 - 火烧云团建"
-                     class="clue-image"
-                     loading="lazy"
-                     width="700" height="500"
-                     onload="this.classList.add('loaded')"
-                     onerror='this.classList.add("error"); this.alt="图片加载失败：火烧云绘制团建图"'>
-                <p class="image-desc">由画师「火烧云」贡献的赛博团建图<br>
-                时间比较紧就ai上色了,致歉···内容都是自己画的</p>
-
-                <img src="./assets/image/工作室logo绘制现场.jpg"
-                     alt="嘲哳logo1 - 皮蛋绘制LOGO现场"
-                     class="clue-image"
-                     loading="lazy"
-                     width="700" height="500"
-                     onload="this.classList.add('loaded')"
-                     onerror='this.classList.add("error"); this.alt="图片加载失败：皮蛋绘制LOGO现场"'>
-                <p class="image-desc">由画师「皮蛋」所提供的工作室LOGO绘制现场</p>
-
-                <img src="./assets/image/logo.png"
-                     alt="嘲哳logo2 - 正式版LOGO"
-                     class="clue-image"
-                     loading="lazy"
-                     width="700" height="500"
-                     onload="this.classList.add('loaded')"
-                     onerror='this.classList.add("error"); this.alt="图片加载失败：正式版LOGO"'>
-                <p class="image-desc">正式版LOGO(小小)</p>
-            </div>
-
-            <div class="btn-container">
-                <button 
-                    class="btn-clue w-2/3 rounded-sm px-8 py-4 text-lg text-gray-200 font-medium tracking-wider"
-                    onclick="alert('更多线索正在整理中，敬请期待～')"
-                >
-                    更多线索？
-                </button>
-            </div>
-            
-            <p class="footer-text">找到它</p>
-        </div>
-    </div>
-
-    <!-- 图片预览弹窗 -->
-    <div class="image-modal" id="imageModal">
-        <button class="close-modal" onclick="closeImageModal()">&times;</button>
-        <div class="modal-content">
-            <img src="" alt="预览图片" class="modal-image" id="modalImage">
-        </div>
-    </div>
-
-    <script>
-        // 全局变量
-        const imageModal = document.getElementById('imageModal');
-        const modalImage = document.getElementById('modalImage');
-        
-        // DOM加载完成后执行
-        document.addEventListener('DOMContentLoaded', function() {
-            const allImages = document.querySelectorAll('.clue-image');
-            
-            // 1. 智能懒加载（使用IntersectionObserver）
-            if ('IntersectionObserver' in window) {
-                const imgObserver = new IntersectionObserver((entries) => {
-                    entries.forEach(entry => {
-                        if (entry.isIntersecting) {
-                            const img = entry.target;
-                            // 对于原生lazy加载的图片，浏览器会自动处理，无需额外操作
-                            imgObserver.unobserve(img);
-                        }
-                    });
-                }, { 
-                    rootMargin: '200px 0px', // 提前200px开始加载
-                    threshold: 0.01 
-                });
-                
-                // 只观察非立即加载的图片
-                allImages.forEach(img => {
-                    if (img.loading === 'lazy') {
-                        imgObserver.observe(img);
-                    }
-                });
-            }
-            
-            // 2. 图片失败重试逻辑（最多重试2次）
-            allImages.forEach(img => {
-                img.addEventListener('error', function() {
-                    // 标记错误状态
-                    this.classList.add('error');
-                    
-                    // 获取当前重试次数
-                    const retryCount = parseInt(this.dataset.retryCount || '0');
-                    
-                    // 最多重试2次
-                    if (retryCount < 2) {
-                        this.dataset.retryCount = retryCount + 1;
-                        // 移除error类，重新加载
-                        this.classList.remove('error');
-                        // 添加时间戳防止缓存
-                        const originalSrc = this.src.split('?')[0];
-                        this.src = `${originalSrc}?t=${Date.now()}`;
-                    } else {
-                        // 重试失败，更新alt提示
-                        this.alt = `【加载失败】${this.alt}`;
-                    }
-                });
-            });
-
-            // 3. 滚动优化 - 头部背景渐变
-            let lastScrollPos = 0;
-            let ticking = false;
-            const header = document.querySelector('.header');
-            
-            window.addEventListener('scroll', () => {
-                if (!ticking) {
-                    requestAnimationFrame(() => {
-                        const scrollTop = window.scrollY;
-                        
-                        // 滚动距离超过50px时加深背景
-                        if (Math.abs(scrollTop - lastScrollPos) > 10) {
-                            header.style.background = scrollTop > 50 
-                                ? 'linear-gradient(to bottom, rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.7))' 
-                                : 'linear-gradient(to bottom, rgba(0, 0, 0, 0.9), transparent)';
-                            lastScrollPos = scrollTop;
-                        }
-                        ticking = false;
-                    });
-                    ticking = true;
-                }
-            }, { passive: true });
-
-            // 4. 图片点击放大功能
-            allImages.forEach(img => {
-                img.addEventListener('click', function() {
-                    if (this.classList.contains('error')) return;
-                    openImageModal(this.src, this.alt);
-                });
-            });
-
-            // 5. 点击模态框空白处关闭
-            imageModal.addEventListener('click', function(e) {
-                if (e.target === imageModal) {
-                    closeImageModal();
-                }
-            });
-
-            // 6. ESC键关闭模态框
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape' && imageModal.style.display === 'flex') {
-                    closeImageModal();
-                }
-            });
-            
-            // 7. 首图强制加载（兼容老旧浏览器）
-            const firstImg = document.querySelector('.clue-image[loading="eager"]');
-            if (firstImg && !firstImg.complete) {
-                firstImg.src = firstImg.src; // 强制触发加载
-            }
-        });
-
-        // 打开图片预览模态框
-        function openImageModal(src, alt) {
-            modalImage.src = src;
-            modalImage.alt = alt;
-            imageModal.style.display = 'flex';
-            // 防止页面滚动
-            document.body.style.overflow = 'hidden';
-            // 防止触摸滚动
-            document.body.style.touchAction = 'none';
-        }
-
-        // 关闭图片预览模态框
-        function closeImageModal() {
-            imageModal.style.display = 'none';
-            // 恢复页面滚动
-            document.body.style.overflow = '';
-            document.body.style.touchAction = 'manipulation';
-            // 清空图片地址，释放内存
-            modalImage.src = '';
-        }
-        
-        // 页面卸载时清理资源
-        window.addEventListener('beforeunload', function() {
-            closeImageModal();
-        });
-    </script>
-</body>
-</html>
+                     width="70
