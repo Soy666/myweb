@@ -5,21 +5,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>嘲哳 Project - 线索详情</title>
-    <!-- 缓存策略：延长缓存时间，首次加载后后续秒开 -->
-    <meta http-equiv="Cache-Control" content="public, max-age=31536000">
-    <meta http-equiv="Pragma" content="cache">
-    <meta http-equiv="Expires" content="31536000">
+    <!-- 彻底关闭缓存：禁用所有缓存策略 -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     
-    <!-- 性能优化：强化预连接 + 首图最高优先级预加载 -->
+    <!-- 性能优化：仅保留预连接，移除预加载（避免缓存影响） -->
     <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
     <link rel="dns-prefetch" href="./assets/image/">
     <link rel="preconnect" href="./assets/image/">
-    <!-- 首图预加载：增加crossorigin，确保最高优先级 -->
-    <link rel="preload" as="image" href="./assets/image/封面1.png" fetchpriority="high" crossorigin="anonymous">
     
-    <!-- 延迟加载非关键脚本，不阻塞图片加载 -->
+    <!-- 延迟加载非关键脚本 -->
     <script src="https://cdn.tailwindcss.com" defer></script>
-    <link rel="icon" type="image/x-icon" href="./favicon.ico">
+    <link rel="icon" type="image/x-icon" href="./favicon.ico?t=<%= Date.now() %>">
     
     <style>
         * {
@@ -284,8 +282,8 @@
             </h2>
 
             <div class="image-container">
-                <!-- 首图：强制最高优先级加载 -->
-                <img src="./assets/image/封面1.png" 
+                <!-- 首图：添加时间戳避免缓存 -->
+                <img src="./assets/image/封面1.png?t=" 
                      alt="嘲哳线索1 - 万俟循绘制封面" 
                      class="clue-image larger"
                      loading="eager"
@@ -296,8 +294,8 @@
 
                 <p id="wan1">由画师「万俟循」贡献的封面图</p>
 
-                <!-- 其他图片：恢复为正常src，保留lazy-img类名用于分批加载 -->
-                <img src="./assets/image/封面3.png"
+                <!-- 其他图片：添加时间戳避免缓存 -->
+                <img src="./assets/image/封面3.png?t="
                      alt="嘲哳线索2 - 黑米绘制封面"
                      class="clue-image lazy-img"
                      width="700" height="500"
@@ -305,7 +303,7 @@
                      onerror='this.classList.add("error"); this.alt="图片加载失败：黑米绘制封面3"'>
                 <p class="image-desc">由画师「黑米」贡献的封面图</p>
 
-                <img src="./assets/image/封面2.png"
+                <img src="./assets/image/封面2.png?t="
                      alt="嘲哳线索3 - 黑米绘制封面"
                      class="clue-image lazy-img"
                      width="700" height="500"
@@ -313,7 +311,7 @@
                      onerror='this.classList.add("error"); this.alt="图片加载失败：黑米绘制封面2"'>
                 <p class="image-desc">由画师「黑米」贡献的封面图</p>
 
-                <img src="./assets/image/魔芋.png"
+                <img src="./assets/image/魔芋.png?t="
                      alt="嘲哳线索4 - 魔芋绘制场景图"
                      class="clue-image lazy-img"
                      width="700" height="500"
@@ -321,7 +319,7 @@
                      onerror='this.classList.add("error"); this.alt="图片加载失败：魔芋绘制场景图"'>
                 <p class="image-desc">由画师「魔芋」贡献的场景图</p>
 
-                <img src="./assets/image/小小.png"
+                <img src="./assets/image/小小.png?t="
                      alt="嘲哳线索5 - 小小绘制宣传图"
                      class="clue-image lazy-img"
                      width="700" height="500"
@@ -329,7 +327,7 @@
                      onerror='this.classList.add("error"); this.alt="图片加载失败：小小绘制宣传图"'>
                 <p class="image-desc">由画师「小小」贡献的宣传图</p>
 
-                <img src="./assets/image/黑米宣传图1.png"
+                <img src="./assets/image/黑米宣传图1.png?t="
                      alt="嘲哳线索6 - 黑米绘制宣传图"
                      class="clue-image lazy-img"
                      width="700" height="500"
@@ -337,7 +335,7 @@
                      onerror='this.classList.add("error"); this.alt="图片加载失败：黑米绘制宣传图1"'>
                 <p class="image-desc">由画师「黑米」贡献的宣传图</p>
 
-                <img src="./assets/image/百里无相宣传图.png"
+                <img src="./assets/image/百里无相宣传图.png?t="
                      alt="嘲哳线索7 - 百里无相绘制宣传图"
                      class="clue-image lazy-img"
                      width="700" height="500"
@@ -345,7 +343,7 @@
                      onerror='this.classList.add("error"); this.alt="图片加载失败：黑米绘制宣传图1"'>
                 <p class="image-desc">由画师「百里无相」贡献的宣传图</p>
 
-                <img src="./assets/image/百里无相.png"
+                <img src="./assets/image/百里无相.png?t="
                      alt="嘲哳线索7 - 百里无相绘制宣传图"
                      class="clue-image lazy-img"
                      width="700" height="500"
@@ -353,7 +351,7 @@
                      onerror='this.classList.add("error"); this.alt="图片加载失败：百里无相绘制宣传图"'>
                 <p class="image-desc">由画师「百里无相」贡献的宣传图</p>
 
-                <img src="./assets/image/百里无相2.png"
+                <img src="./assets/image/百里无相2.png?t="
                      alt="嘲哳线索8 - 百里无相绘制宣传图2"
                      class="clue-image lazy-img"
                      width="700" height="500"
@@ -361,7 +359,7 @@
                      onerror='this.classList.add("error"); this.alt="图片加载失败：百里无相绘制宣传图2"'>
                 <p class="image-desc">由画师「百里无相」贡献的宣传图</p>
 
-                <img src="./assets/image/A手绘1.png"
+                <img src="./assets/image/A手绘1.png?t="
                      alt="嘲哳线索9 - attendboth绘制宣传图"
                      class="clue-image lazy-img"
                      width="700" height="500"
@@ -369,7 +367,7 @@
                      onerror='this.classList.add("error"); this.alt="图片加载失败:A手绘1"'>
                 <p class="image-desc">由画师「attendboth」贡献的宣传图</p>
 
-                <img src="./assets/image/A手绘2.png"
+                <img src="./assets/image/A手绘2.png?t="
                      alt="嘲哳线索10 - attendboth绘制宣传图2"
                      class="clue-image lazy-img"
                      width="700" height="500"
@@ -377,7 +375,7 @@
                      onerror='this.classList.add("error"); this.alt="图片加载失败:A手绘2"'>
                 <p class="image-desc">由画师「attendboth」贡献的宣传图2</p>
 
-                <img src="./assets/image/周.png"
+                <img src="./assets/image/周.png?t="
                      alt="嘲哳团建 - 团建图1"
                      class="clue-image lazy-img"
                      width="700" height="500"
@@ -386,7 +384,7 @@
                 <p class="image-desc">由画师「周」贡献的赛博团建图<br>
                 画师们的一次活动···</p>
 
-                <img src="./assets/image/魔芋团建图.png"
+                <img src="./assets/image/魔芋团建图.png?t="
                      alt="嘲哳团建 - 魔芋团建"
                      class="clue-image lazy-img"
                      width="700" height="500"
@@ -394,7 +392,7 @@
                      onerror='this.classList.add("error"); this.alt="图片加载失败：魔芋绘制团建图"'>
                 <p class="image-desc">由画师「魔芋」贡献的赛博团建图</p>
 
-                <img src="./assets/image/百里无相团建图.png"
+                <img src="./assets/image/百里无相团建图.png?t="
                      alt="嘲哳团建 - 百里无相团建"
                      class="clue-image lazy-img"
                      width="700" height="500"
@@ -402,7 +400,7 @@
                      onerror='this.classList.add("error"); this.alt="图片加载失败：百里无相绘制团建图"'>
                 <p class="image-desc">由画师「百里无相」贡献的赛博团建图</p>
 
-                <img src="./assets/image/超级鸟人团建图.png"
+                <img src="./assets/image/超级鸟人团建图.png?t="
                      alt="嘲哳团建 - 超级鸟人团建"
                      class="clue-image lazy-img"
                      width="700" height="500"
@@ -410,7 +408,7 @@
                      onerror='this.classList.add("error"); this.alt="图片加载失败：超级鸟人绘制团建图"'>
                 <p class="image-desc">由画师「超级鸟人」贡献的赛博团建图</p>
 
-                <img src="./assets/image/鱼头团建图.png"
+                <img src="./assets/image/鱼头团建图.png?t="
                      alt="嘲哳团建 - 鱼头团建"
                      class="clue-image lazy-img"
                      width="700" height="500"
@@ -418,7 +416,7 @@
                      onerror='this.classList.add("error"); this.alt="图片加载失败：鱼头绘制团建图"'>
                 <p class="image-desc">由画师「鱼头」贡献的赛博团建图</p>
 
-                <img src="./assets/image/火烧云团建图.png"
+                <img src="./assets/image/火烧云团建图.png?t="
                      alt="嘲哳团建 - 火烧云团建"
                      class="clue-image lazy-img"
                      width="700" height="500"
@@ -427,7 +425,7 @@
                 <p class="image-desc">由画师「火烧云」贡献的赛博团建图<br>
                 时间比较紧就ai上色了,致歉···内容都是自己画的</p>
 
-                <img src="./assets/image/工作室logo绘制现场.jpg"
+                <img src="./assets/image/工作室logo绘制现场.jpg?t="
                      alt="嘲哳logo1 - 皮蛋绘制LOGO现场"
                      class="clue-image lazy-img"
                      width="700" height="500"
@@ -435,7 +433,7 @@
                      onerror='this.classList.add("error"); this.alt="图片加载失败：皮蛋绘制LOGO现场"'>
                 <p class="image-desc">由画师「皮蛋」所提供的工作室LOGO绘制现场</p>
 
-                <img src="./assets/image/logo.png"
+                <img src="./assets/image/logo.png?t="
                      alt="嘲哳logo2 - 正式版LOGO"
                      class="clue-image lazy-img"
                      width="700" height="500"
@@ -469,84 +467,64 @@
         // 全局变量
         const imageModal = document.getElementById('imageModal');
         const modalImage = document.getElementById('modalImage');
+        // 生成随机时间戳，避免缓存
+        const timestamp = Date.now();
         
         // DOM加载完成后执行
         document.addEventListener('DOMContentLoaded', function() {
             const allImages = document.querySelectorAll('.clue-image');
-            const lazyImages = document.querySelectorAll('.lazy-img'); // 分批加载的图片
+            const lazyImages = document.querySelectorAll('.lazy-img');
             
-            // 1. 首图强制立即加载（新机器首次加载必做）
-            const firstImg = document.querySelector('.clue-image[loading="eager"]');
-            if (firstImg && !firstImg.complete) {
-                // 强制重新触发加载，避免浏览器优先级问题
-                firstImg.src = '';
-                firstImg.src = './assets/image/封面1.png';
-            }
+            // 1. 给所有图片添加时间戳，彻底禁用缓存
+            allImages.forEach(img => {
+                img.src = img.src + timestamp;
+            });
 
-            // 2. 分批加载懒加载图片（核心优化：避免并发请求阻塞）
-            let loadIndex = 0;
-            const batchSize = 3; // 每次加载3张，可根据网络调整
-            const loadBatch = () => {
-                // 计算当前批次的图片范围
-                const endIndex = Math.min(loadIndex + batchSize, lazyImages.length);
-                // 加载当前批次
-                for (let i = loadIndex; i < endIndex; i++) {
-                    const img = lazyImages[i];
-                    // 恢复为正常src，不再需要data-src
-                    if (!img.src) {
-                        img.src = img.dataset.src || img.src;
-                    }
-                }
-                loadIndex = endIndex;
-                
-                // 如果还有未加载的，延迟加载下一批（避免阻塞）
-                if (loadIndex < lazyImages.length) {
-                    setTimeout(loadBatch, 500); // 500ms间隔，可调整
-                }
-            };
+            // 2. 移除首图强制重加载（避免重复请求）
+            // 删掉了原有的首图强制重加载逻辑，减少无效请求
 
-            // 3. 可视区域优先加载（滚动时优先加载当前可见的）
+            // 3. 优化懒加载：只加载可视区域图片，减少并发
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         const img = entry.target;
-                        if (!img.complete) {
-                            // 触发浏览器加载
-                            img.src = img.src;
+                        // 只在未加载时触发
+                        if (!img.complete && !img.classList.contains('loaded') && !img.classList.contains('error')) {
+                            // 重新设置src触发加载（带时间戳）
+                            img.src = img.src.split('?t=')[0] + '?t=' + timestamp;
                             observer.unobserve(img);
                         }
                     }
                 });
-            }, { rootMargin: '400px 0px', threshold: 0.01 });
+            }, { 
+                rootMargin: '300px 0px', // 提前300px加载，减少等待
+                threshold: 0.01,
+                delay: 50 // 短延迟，平衡加载速度和性能
+            });
 
             // 观察所有懒加载图片
             lazyImages.forEach(img => observer.observe(img));
 
-            // 启动分批加载（首屏加载完成后开始）
-            setTimeout(loadBatch, 300);
-
-            // 4. 图片失败重试逻辑（优化重试策略）
+            // 4. 简化图片失败重试逻辑（减少卡顿）
             allImages.forEach(img => {
                 img.addEventListener('error', function() {
                     this.classList.add('error');
                     const retryCount = parseInt(this.dataset.retryCount || '0');
                     
-                    if (retryCount < 2) {
+                    if (retryCount < 1) { // 只重试1次，避免无限请求
                         this.dataset.retryCount = retryCount + 1;
                         this.classList.remove('error');
-                        // 延迟重试，避免重复请求
+                        // 重试时添加新的时间戳
                         setTimeout(() => {
-                            const originalSrc = this.src;
-                            const cleanSrc = originalSrc.split('?')[0];
-                            this.src = `${cleanSrc}?t=${Date.now()}`;
-                        }, 1000);
+                            this.src = this.src.split('?t=')[0] + '?t=' + (Date.now());
+                        }, 300);
                     } else {
                         this.alt = `【加载失败】${this.alt}`;
                     }
                 });
             });
 
-            // 5. 滚动优化 - 头部背景渐变（保留原有逻辑）
+            // 5. 滚动优化 - 保留原有逻辑
             let lastScrollPos = 0;
             let ticking = false;
             const header = document.querySelector('.header');
@@ -568,7 +546,7 @@
                 }
             }, { passive: true });
 
-            // 6. 图片点击放大功能（保留原有逻辑）
+            // 6. 图片点击放大功能 - 保留原有逻辑
             allImages.forEach(img => {
                 img.addEventListener('click', function() {
                     if (this.classList.contains('error')) return;
@@ -576,14 +554,14 @@
                 });
             });
 
-            // 7. 点击模态框空白处关闭（保留原有逻辑）
+            // 7. 点击模态框空白处关闭 - 保留原有逻辑
             imageModal.addEventListener('click', function(e) {
                 if (e.target === imageModal) {
                     closeImageModal();
                 }
             });
 
-            // 8. ESC键关闭模态框（保留原有逻辑）
+            // 8. ESC键关闭模态框 - 保留原有逻辑
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape' && imageModal.style.display === 'flex') {
                     closeImageModal();
@@ -591,7 +569,7 @@
             });
         });
 
-        // 打开图片预览模态框（保留原有逻辑）
+        // 打开图片预览模态框 - 保留原有逻辑
         function openImageModal(src, alt) {
             modalImage.src = src;
             modalImage.alt = alt;
@@ -600,7 +578,7 @@
             document.body.style.touchAction = 'none';
         }
 
-        // 关闭图片预览模态框（保留原有逻辑）
+        // 关闭图片预览模态框 - 保留原有逻辑
         function closeImageModal() {
             imageModal.style.display = 'none';
             document.body.style.overflow = '';
@@ -608,7 +586,7 @@
             modalImage.src = '';
         }
         
-        // 页面卸载时清理资源（保留原有逻辑）
+        // 页面卸载时清理资源 - 保留原有逻辑
         window.addEventListener('beforeunload', function() {
             closeImageModal();
         });
