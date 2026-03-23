@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>嘲哳 Project - 文案线索</title>
+    <!-- 彻底关闭缓存：禁用所有缓存策略 -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
+    <!-- 性能优化：仅保留预连接 -->
+    <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
+    
+    <!-- 延迟加载非关键脚本 -->
+    <script src="https://cdn.tailwindcss.com" defer></script>
+    <link rel="icon" type="image/x-icon" href="./favicon.ico?t=<%= Date.now() %>">
+    
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            touch-action: manipulation;
+            background-color: #000;
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            scroll-behavior: smooth;
+            user-select: none;
+        }
+
+        /* 按钮样式 */
+        .btn-clue {
+            transition: all 0.3s ease;
+            border: 1px solid #4b5563;
+            background-color: rgba(31, 41, 55, 0.3);
+            text-align: center;
+            cursor: pointer;
+            border-radius: 0.5rem;
+        }
+        
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            margin: 2rem 0 0.5rem;
+        }
+        
+        .btn-clue:hover {
+            background-color: rgba(55, 65, 81, 0.5);
+            border-color: #6b7280;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-clue:active {
+            transform: translateY(0);
+        }
+
+        /* 文本样式 */
+        .text-content {
+            color: #9ca3af;
+            letter-spacing: 0.1em;
+            line-height: 1.8;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .text-title {
+            color: #d1d5db;
+            font-size: 1.2rem;
+            margin: 2rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(75, 85, 99, 0.3);
+        }
+        
+        /* 优化：统一设置文字居中，同时调整诗句行高 */
+        .text-content {
+            color: #9ca3af;
+            letter-spacing: 0.1em;
+            line-height: 2; /* 增大行高，适配诗句 */
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            text-align: center; /* 所有文本内容居中 */
+        }
+        
+        /* 新增：标题居中类 */
+        .text-title-center {
+            text-align: center;
+            color: #d1d5db;
+            font-size: 1.2rem;
+            margin: 2rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(75, 85, 99, 0.3);
+            border-bottom-width: 1px;
+            border-bottom-color: rgba(75, 85, 99, 0.3);
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .content-fade {
+            opacity: 1 !important;
+            animation: none !important;
+        }
+
+        /* 头部样式 */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+            padding: 0.625rem 0.75rem;
+            display: flex;
+            align-items: center;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), transparent);
+            transform: translateZ(0);
+            transition: background 0.3s ease; /* 平滑过渡 */
+        }
+
+        .btn-back {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #d1d5db;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            border-radius: 0.375rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-back:hover {
+            color: #ffffff;
+            background-color: rgba(75, 85, 99, 0.2);
+        }
+
+        /* 主容器 */
+        .main-container {
+            min-height: 100vh;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 5rem 1rem 3rem;
+            overflow-x: hidden;
+        }
+
+        .card {
+            max-width: 800px;
+            width: 100%;
+            color: #d1d5db;
+            border: 1px solid #4b5563;
+            border-radius: 1rem;
+            padding: 2rem 1.5rem;
+            background-color: rgba(17, 24, 39, 0.9);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+            transform: translateZ(0);
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            text-align: center;
+            color: #ffffff;
+            font-weight: 400;
+            letter-spacing: 0.15em;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(75, 85, 99, 0.3);
+        }
+
+        .footer-text {
+            text-align: center;
+            font-size: 0.75rem;
+            color: #6b7280;
+            letter-spacing: 0.2em;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+
+<body class="bg-black min-h-screen text-gray-400 text-sm sm:text-base leading-relaxed">
+    <header class="header">
+        <button class="btn-back" onclick="window.location.href='./other.html'">
+            ← 返回上一页
+        </button>
+    </header>
+
+    <div class="main-container content-fade">
+        <div class="card">
+            <h2 class="page-title">
+                嘲哳的线索（文案）
+            </h2>
+
+            <!-- 文案内容区域 - 你可以替换成自己的文字 -->
+            <div class="text-container">
+                <!-- 第一段文案：诗词居中 -->
+                <h3 class="text-title-center">《休辍翰》</h3>
+                <p class="text-content">
+                    焚汝光焰笔，令汝栖迟无人知。
+                    <br>坠汝天禄简，使汝存殁皆绝迹。
+                    <br>歌哭七十载，青史无一字。
+                    <br>令献长男女，刳骨烹血膋。
+                    <br>纸隶伏荐飨，使汝沸耳静。
+                    <br>莫为泣麟赋，须立春秋法。
+                    <br>莫作赤虬梦，急刻采玉诗。
+                    <br>相公相公休辍翰，子夜鬼哭永相将。
+                </p>
+                
+                <!-- 第二段文案 -->
+                <h3 class="text-title">核心叙事</h3>
+                <p class="text-content">
+                    我们试图通过文字构建一个虚实交织的世界，其中既有对现实的映射，也有对未知的想象。每一段文案都不是孤立的，它们相互关联，共同编织出「嘲哳」的完整图景。
+                </p>
+                
+                <!-- 第三段文案 -->
+                <h3 class="text-title">创作理念</h3>
+                <p class="text-content">
+                    文字是载体，情绪是内核。我们希望通过这些碎片化的文案线索，让读者能够感受到创作者想要传递的情感——对过往的怀念、对未知的好奇、对真相的追寻。
+                </p>
+                
+                <!-- 第四段文案 -->
+                <h3 class="text-title">未完成的碎片</h3>
+                <p class="text-content">
+                    以下是一些尚未整理完成的文案片段，它们或许是对话，或许是独白，或许是场景描述：<br><br>
+                    ▶ 「那些声音从未消失，只是藏在了信号的缝隙里」<br>
+                    ▶ 「当所有人都忘记的时候，记忆才开始真正存在」<br>
+                    ▶ 「我们以为在寻找真相，实则是真相在寻找我们」<br>
+                    ▶ 「每一次的重构，都是对过去的一次告别」
+                </p>
+                
+                <!-- 第五段文案 -->
+                <h3 class="text-title">致谢</h3>
+                <p class="text-content">
+                    感谢所有为「嘲哳」项目贡献文案素材的创作者，感谢每一位愿意静下心来阅读这些文字的人。<br>
+                    所有的碎片，终将拼凑出完整的真相。<br>
+                    QQ交流群：1059990343
+                </p>
+            </div>
+
+            <!-- 保留按钮样式 -->
+            <div class="btn-container">
+                <button 
+                    class="btn-clue w-2/3 rounded-sm px-8 py-4 text-lg text-gray-200 font-medium tracking-wider"
+                    onclick="alert('更多文案线索正在整理中，敬请期待～')"
+                >
+                    更多线索？
+                </button>
+            </div>
+            
+            <p class="footer-text">找到它</p>
+        </div>
+    </div>
+
+    <script>
+        // DOM加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 滚动优化 - 保留原有逻辑
+            let lastScrollPos = 0;
+            let ticking = false;
+            const header = document.querySelector('.header');
+            
+            window.addEventListener('scroll', () => {
+                if (!ticking) {
+                    requestAnimationFrame(() => {
+                        const scrollTop = window.scrollY;
+                        
+                        if (Math.abs(scrollTop - lastScrollPos) > 10) {
+                            header.style.background = scrollTop > 50 
+                                ? 'linear-gradient(to bottom, rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.7))' 
+                                : 'linear-gradient(to bottom, rgba(0, 0, 0, 0.9), transparent)';
+                            lastScrollPos = scrollTop;
+                        }
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
+            }, { passive: true });
+        });
+    </script>
+</body>
+</html>
