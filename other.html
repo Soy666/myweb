@@ -126,20 +126,31 @@
 
                 <!-- 列表内容 -->
                 <ul class="list-disc list-inside space-y-2 pl-4 pt-2 text-gray-400">
-                    
                     <li>我们重构的版本，试图还原这些碎片化线索背后的故事内核。</li>
                 </ul>
 
-                <!-- 修复后的按钮区域：正确添加跳转功能 + 强制居中 -->
-                <div class="pt-6 space-y-2">
+                <!-- 修复后的按钮区域：新增第二个按钮，样式保持一致 -->
+                <div class="pt-6 space-y-4"> <!-- 调整space-y为4，让按钮间距更合理 -->
+                    <!-- 第一个按钮：嘲哳的线索 -->
                     <div class="btn-container">
                         <button 
                             class="btn-clue w-2/3 rounded-sm px-8 py-4 text-lg text-gray-200 font-medium tracking-wider"
                             onclick="window.location.href='./gift.html'"
                         >
-                            嘲哳的线索
+                            >嘲哳的线索(美术)
                         </button>
                     </div>
+                    
+                    <!-- 第二个按钮：跳转到wenan.html -->
+                    <div class="btn-container">
+                        <button 
+                            class="btn-clue w-2/3 rounded-sm px-8 py-4 text-lg text-gray-200 font-medium tracking-wider"
+                            onclick="window.location.href='./wenan.html'" <!-- 修正跳转链接为wenan.html -->
+                        >
+                            嘲哳的线索(文案)
+                        </button>
+                    </div>
+                    
                     <p class="text-center text-xs text-gray-500 tracking-wider">似乎可以点击进去?</p>
                 </div>
 
@@ -150,7 +161,6 @@
                 <br>
                 QQ群:1059990343    
                 </p>
-                
             </div>
         </div>
     </div>
